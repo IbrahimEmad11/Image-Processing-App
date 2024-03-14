@@ -21,11 +21,11 @@ class CV_App(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)  
         self.input_image = None
-
+        self.gray_img = None
         self.ui.BrowseButton.clicked.connect(self.browse_img)
 
-        self.ui.AverageFilterButton.clicked.connect(self.apply_average_filter)
-        self.ui.GaussianFilterButton.clicked.connect(self.apply_gaussian_filter)
+        # self.ui.AverageFilterButton.clicked.connect(self.apply_average_filter)
+        # self.ui.GaussianFilterButton.clicked.connect(self.apply_gaussian_filter)
         self.ui.MedianFilterButton.clicked.connect(self.apply_median_filter)
 
         self.ui.UniformNoiseButton.clicked.connect(self.add_uniform_noise)
@@ -33,7 +33,7 @@ class CV_App(QMainWindow):
         self.ui.GaussianNoiseButton.clicked.connect(self.add_gaussian_noise)
 
         self.ui.EqualizeButton.clicked.connect(self.image_equalization)
-        self.ui.NormalizeLabel.clicked.connect(self.image_normalization)
+        # self.ui.NormalizeLabel.clicked.connect(self.image_normalization)
         self.ui.GlobalThresholdButton.clicked.connect(self.global_threshold)
         self.ui.LocalThresholdButton.clicked.connect(self.local_threshold)
 
@@ -53,6 +53,7 @@ class CV_App(QMainWindow):
                 self.ui.EdgeDetection_inputImage.setPixmap(pixmap)
                 
                 self.input_image = cv2.imread(filename)
+                self.gray_img =cv2.cvtColor(self.input_image, cv2.COLOR_BGR2GRAY)
     
     # add noise on input - filter output
     def add_uniform_noise(self):
@@ -152,14 +153,12 @@ class CV_App(QMainWindow):
 
     # Equalization
     def image_equalization(self):
-        img = self.input_image
-
         # Compute histogram of the original image
-        hist, bins = np.histogram(img.flatten(), 256, [0,256])
+        histogram, bins = np.histogram(self.gray_img.flatten(), 256, [0,256])
 
         # Compute cumulative distribution function (CDF)
-        cdf = hist.cumsum()
-        cdf_normalized = cdf * float(hist.max()) / cdf.max()
+        cdf = histogram.cumsum()
+        cdf_normalized = cdf * float(histogram.max()) / cdf.max()
 
         # Apply histogram equalization using the CDF
         cdf_m = np.ma.masked_equal(cdf, 0)
@@ -167,21 +166,21 @@ class CV_App(QMainWindow):
         cdf = np.ma.filled(cdf_m, 0).astype('uint8')
 
         # Map original pixel intensities to new intensities using the CDF
-        img2 = cdf[img]
-        img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
-        height, width, channel = img2.shape
+        eq_img = cdf[self.gray_img]
+        eq_img = cv2.cvtColor(eq_img, cv2.COLOR_BGR2RGB)
+        height, width, channel = eq_img.shape
         bytesPerLine = 3 * width
-        qImg = QImage(img2.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        qImg = QImage(eq_img.data, width, height, bytesPerLine, QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(qImg)
         self.ui.Threshold_OutputImage.setPixmap(pixmap)
 
     # Normalization
-    def image_normalization(self, img):
-        lmin = float(img.min())
-        lmax = float(img.max())
-        x = (img-lmin)
+    def image_normalization(self):
+        lmin = float(self.gray_img.min())
+        lmax = float(self.gray_img.max())
+        x = (self.gray_img-lmin)
         y = (lmax-lmin)
-        return np.floor((x/y)*255)
+        return ((x/y)*255)
 
     def global_threshold(image, threshold):
         thresholded_image = np.zeros_like(image)
