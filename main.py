@@ -37,7 +37,7 @@ class CV_App(QMainWindow):
         self.ui.GlobalThresholdButton.clicked.connect(self.global_threshold)
         self.ui.LocalThresholdButton.clicked.connect(self.local_threshold)
 
-        # self.ui.CannyButton.clicked.connect(self.image_equalization)
+        self.ui.CannyButton.clicked.connect(self.canny_edge_detection)
         # self.ui.SobelButton.clicked.connect(self.image_normalization)
         # self.ui.RobetButton.clicked.connect(self.global_threshold)
         # self.ui.PrewittButton.clicked.connect(self.local_threshold)
@@ -198,6 +198,13 @@ class CV_App(QMainWindow):
                 thresholded_image[i, j] = 255 if (image[i, j] - mean_value) > constant else 0
         
         return thresholded_image
+    def canny_edge_detection(self):
+        if self.input_image is not None:
+            edges = cv2.Canny(self.gray_img, 100, 200)
+            qImg = QImage(edges.data, edges.shape[1], edges.shape[0], edges.strides[0], QImage.Format_Grayscale8)
+            pixmap = QPixmap.fromImage(qImg)
+            self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
+            
     
 if __name__ == "__main__":
     app = QApplication(sys.argv)
