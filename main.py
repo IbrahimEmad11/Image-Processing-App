@@ -1,6 +1,6 @@
 import sys
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QSlider , QColorDialog, QAction, QTextEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QSlider , QColorDialog, QAction, QTextEdit, QMessageBox
 from PyQt5.QtCore import QTimer,Qt, QPointF
 from PyQt5.QtGui import QColor, QIcon, QCursor, QKeySequence, QPixmap, QImage
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -11,6 +11,7 @@ from scipy.ndimage import gaussian_filter, median_filter
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from scipy.ndimage import convolve
 
 # pyuic5 task1.ui -o task1.py
 
@@ -21,6 +22,9 @@ class CV_App(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)  
         self.input_image = None
+        self.input_image2 = None
+        self.hybrid_image1 = None
+        self.hybrid_image2 = None
         self.gray_img = None
         self.ui.BrowseButton.clicked.connect(self.browse_img)
 
@@ -198,6 +202,65 @@ class CV_App(QMainWindow):
                 thresholded_image[i, j] = 255 if (image[i, j] - mean_value) > constant else 0
         
         return thresholded_image
+    
+
+############################################################### Requirement no. 9 ###############################################################
+
+    def high_pass_filter(self, image):
+        kernel = np.array([[-1, -1, -1],
+                           [-1,  8, -1],
+                           [-1, -1, -1]])
+
+        hpf_image = self.apply_filter(image, kernel)
+        return hpf_image
+
+    def low_pass_filter(self, image):
+        kernel = np.array([[1, 1, 1],
+                           [1, 1, 1],
+                           [1, 1, 1]]) / 9
+
+        lpf_image = self.apply_filter(image, kernel)
+        return lpf_image
+
+    def apply_filter(self, image, kernel):
+        input_array = np.array(image.convertToFormat(QImage.Format_Grayscale8))
+        processed_array = convolve(input_array, kernel)
+        processed_array = np.clip(processed_array, 0, 255).astype(np.uint8)
+        filtered_image = QImage(processed_array.data, processed_array.shape[1], processed_array.shape[0],
+                                 processed_array.shape[1], QImage.Format_Grayscale8)
+        return filtered_image
+    
+
+
+############################################################### Requirement no. 10 ###############################################################
+
+    def generate_hybrid_images(self):
+        if self.input_image is None or self.input_image2 is None:
+            QMessageBox.warning(self, "Warning", "Please load two images first.")
+            return
+
+        # Apply high-pass and low-pass filters to both images
+        high_pass_image1 = self.apply_high_pass_filter(self.input_image)
+        high_pass_image2 = self.apply_high_pass_filter(self.input_image2)
+        low_pass_image1 = self.apply_low_pass_filter(self.input_image)
+        low_pass_image2 = self.apply_low_pass_filter(self.input_image2)
+
+        #Create 1st hybrid image:
+        hybrid_array1 = np.array(low_pass_image1) + np.array(high_pass_image2)
+        hybrid_array1 = np.clip(hybrid_array1, 0, 255).astype(np.uint8)
+
+        self.hybrid_image1 = QImage(hybrid_array1.data, hybrid_array1.shape[1], hybrid_array1.shape[0],
+                              hybrid_array1.shape[1], QImage.Format_Grayscale8)
+        #Create 2nd hybrid image:
+        hybrid_array2 = np.array(low_pass_image2) + np.array(high_pass_image1)
+        hybrid_array2 = np.clip(hybrid_array2, 0, 255).astype(np.uint8)
+
+        self.hybrid_image2 = QImage(hybrid_array2.data, hybrid_array2.shape[1], hybrid_array2.shape[0],
+                              hybrid_array2.shape[1], QImage.Format_Grayscale8)
+
+
+
+    
     
 if __name__ == "__main__":
     app = QApplication(sys.argv)
