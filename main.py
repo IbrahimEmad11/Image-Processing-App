@@ -4,16 +4,90 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QSlider , QC
 from PyQt5.QtCore import QTimer,Qt, QPointF
 from PyQt5.QtGui import QColor, QIcon, QCursor, QKeySequence, QPixmap, QImage
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QProgressBar, QDialog, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QProgressBar, QDialog, QVBoxLayout, QLineEdit, QLabel
 from task1 import Ui_MainWindow
 from PIL import Image , ImageFilter
 from scipy.ndimage import gaussian_filter, median_filter
 import numpy as np
+from scipy.signal import convolve2d
 import cv2
 import matplotlib.pyplot as plt
 from scipy.ndimage import convolve
 
 # pyuic5 task1.ui -o task1.py
+class SaltPepperDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Salt and Pepper: ")
+        layout = QVBoxLayout()
+        label1 = QLabel("Noise Ratio:")
+        self.input1 = QLineEdit()
+
+        layout.addWidget(label1)
+        layout.addWidget(self.input1)
+
+        self.apply_button = QPushButton("Apply")
+        self.apply_button.clicked.connect(self.apply_action)
+        layout.addWidget(self.apply_button)
+
+        self.setLayout(layout)
+    
+    def get_input_values(self):
+        return self.input1.text()
+
+    def apply_action(self):
+         self.accept()
+
+class UniformNoiseDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Uniform Noise: ")
+        layout = QVBoxLayout()
+        label1 = QLabel("Noise Intensity:")
+        self.input1 = QLineEdit()
+
+        layout.addWidget(label1)
+        layout.addWidget(self.input1)
+
+        self.apply_button = QPushButton("Apply")
+        self.apply_button.clicked.connect(self.apply_action)
+        layout.addWidget(self.apply_button)
+
+        self.setLayout(layout)
+
+    def get_input_values(self):
+        return self.input1.text()
+
+    def apply_action(self):
+         self.accept()
+
+class GaussianNoiseDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Gaussian Noise Parameters")
+        layout = QVBoxLayout()
+        label1 = QLabel("Mean:")
+        label2 = QLabel("Std:")
+        self.input1 = QLineEdit()
+        self.input2 = QLineEdit()
+
+        layout.addWidget(label1)
+        layout.addWidget(self.input1)
+        layout.addWidget(label2)
+        layout.addWidget(self.input2)
+
+        self.apply_button = QPushButton("Apply")
+        self.apply_button.clicked.connect(self.apply_action)
+        layout.addWidget(self.apply_button)
+
+        self.setLayout(layout)
+
+    def get_input_values(self):
+        return self.input1.text(), self.input2.text() 
+
+    def apply_action(self):
+         self.accept()
+
 
 class CV_App(QMainWindow):
     def __init__(self):
@@ -27,17 +101,18 @@ class CV_App(QMainWindow):
         self.hybrid_image2 = None
         self.gray_img = None
         self.ui.BrowseButton.clicked.connect(self.browse_img)
+        self.ui.RefreshButton.clicked.connect(self.refresh_img)
 
-        # self.ui.AverageFilterButton.clicked.connect(self.apply_average_filter)
-        # self.ui.GaussianFilterButton.clicked.connect(self.apply_gaussian_filter)
-        self.ui.MedianFilterButton.clicked.connect(self.apply_median_filter)
+        self.ui.AverageFilterButton.clicked.connect(self.average_filter)
+        # self.ui.GaussianFilterButton.clicked.connect(self.gaussian_filter)
+        self.ui.MedianFilterButton.clicked.connect(self.median_filter)
 
         self.ui.UniformNoiseButton.clicked.connect(self.add_uniform_noise)
         self.ui.SaltPepperNoiseButton.clicked.connect(self.add_salt_and_pepper_noise)
         self.ui.GaussianNoiseButton.clicked.connect(self.add_gaussian_noise)
 
         self.ui.EqualizeButton.clicked.connect(self.image_equalization)
-        # self.ui.NormalizeLabel.clicked.connect(self.image_normalization)
+        self.ui.NormalizeButton.clicked.connect(self.image_normalization)
         self.ui.GlobalThresholdButton.clicked.connect(self.global_threshold)
         self.ui.LocalThresholdButton.clicked.connect(self.local_threshold)
 
@@ -45,25 +120,136 @@ class CV_App(QMainWindow):
         self.ui.SobelButton.clicked.connect(self.perform_sobel_edge_detection)
         self.ui.RobetButton.clicked.connect(self.perform_roberts_edge_detection)
         self.ui.PrewittButton.clicked.connect(self.perform_prewitt_edge_detection)
+
+    def refresh_img(self):
+        pixmap = QPixmap("grayscale_image.jpg" )
+        self.ui.filter_outputImage.setPixmap(pixmap)
+        self.ui.Threshold_outputImage.setPixmap(pixmap)
+        self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
+
+    def add_uniform_noise(self, intensity=0.1):
+        dialog = UniformNoiseDialog(self)
+        if dialog.exec_():
+            intensity = float(dialog.get_input_values())
+
+        width, height = self.input_image.size
+        image_gray = self.input_image.convert('L')
+        noisy_image = np.array(image_gray)
+        noise = np.random.uniform(-intensity, intensity, (height, width))
+        noisy_image = np.clip(noisy_image + noise * 255, 0, 255).astype(np.uint8)
+
+        output_image = Image.fromarray(noisy_image)
+        qt_image = QImage(output_image.tobytes(), output_image.size[0], output_image.size[1], QImage.Format_Grayscale8)
+        pixmap = QPixmap.fromImage(qt_image)
+        self.ui.filter_outputImage.setPixmap(pixmap)
+
+
+    def add_gaussian_noise(self, mean=0, std=25):
+        dialog = GaussianNoiseDialog(self)
+        if dialog.exec_():
+            mean, std = map(float, dialog.get_input_values())
+
+        width, height = self.input_image.size
+        image_gray = self.input_image.convert('L')
+        noisy_image = np.array(image_gray)
+        noise = np.random.normal(mean, std, (height, width))
+        noisy_image = np.clip(noisy_image + noise, 0, 255).astype(np.uint8)
+
+        output_image = Image.fromarray(noisy_image)
+        qt_image = QImage(output_image.tobytes(), output_image.size[0], output_image.size[1], QImage.Format_Grayscale8)
+        pixmap = QPixmap.fromImage(qt_image)
+        self.ui.filter_outputImage.setPixmap(pixmap)
+
+    def add_salt_and_pepper_noise(self, ratio=0.01):
+        dialog = SaltPepperDialog(self)
+        if dialog.exec_():
+            ratio = float(dialog.get_input_values())
+
+        width, height = self.input_image.size
+        image_gray = self.input_image.convert('L')
+        noisy_image = np.array(image_gray)
         
+        # Generate salt and pepper noise for each pixel
+        salt_pepper = np.random.rand(height, width)
+        noisy_image[salt_pepper < ratio / 2] = 0
+        noisy_image[salt_pepper > 1 - ratio / 2] = 255
+
+        output_image = Image.fromarray(noisy_image)
+        qt_image = QImage(output_image.tobytes(), output_image.size[0], output_image.size[1], QImage.Format_Grayscale8)
+        pixmap = QPixmap.fromImage(qt_image)
+        self.ui.filter_outputImage.setPixmap(pixmap)
+
+    def average_filter(self):
+        if self.ui.Radio3x3Kernal.isChecked():
+            kernel_size = 3
+        else:
+            kernel_size = 5
+
+        image_gray = self.input_image.convert('L')
+        img_array = np.array(image_gray)
+        kernel = np.ones((kernel_size, kernel_size)) / (kernel_size ** 2)
+        filtered_image_array = convolve2d(img_array, kernel, mode='same').astype(np.uint8)
+
+        filtered_image = Image.fromarray(filtered_image_array)
+        qt_image = QImage(filtered_image.tobytes(), filtered_image.size[0], filtered_image.size[1], QImage.Format_Grayscale8)
+        pixmap = QPixmap.fromImage(qt_image)
+        self.ui.filter_outputImage.setPixmap(pixmap)
+
+    def median_filter(self):
+        if self.ui.Radio3x3Kernal.isChecked():
+            kernel_size = 3
+        else:
+            kernel_size = 5
+
+        image_gray = self.input_image.convert('L')
+        img_array = np.array(image_gray)
+        filtered_img_array = median_filter(img_array, size=kernel_size)
+        filtered_image = Image.fromarray(filtered_img_array)
+
+        qt_image = QImage(filtered_image.tobytes(), filtered_image.size[0], filtered_image.size[1], QImage.Format_Grayscale8)
+        pixmap = QPixmap.fromImage(qt_image)
+        self.ui.filter_outputImage.setPixmap(pixmap)
+
+    # def gaussian_filter(self, sigma=1):
+    #     if self.ui.Radio3x3Kernal.isChecked():
+    #         kernel_size = 3
+    #     else:
+    #         kernel_size = 5
+
+    #     # Apply the Gaussian filter
+    #     output_image = gaussian_filter(input_image, sigma=1, mode='nearest')
+
+    #     filtered_image = self.apply_filter(self.input_image, kernel)
+    #     qt_image = QImage(filtered_image.tobytes(), filtered_image.size[0], filtered_image.size[1], QImage.Format_Grayscale8)
+    #     pixmap = QPixmap.fromImage(qt_image)
+    #     self.ui.filter_outputImage.setPixmap(pixmap)
 
     def browse_img(self):
         options = QFileDialog.Options()
         filename, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg *.bmp *.gif)", options=options)
+        self.input_image = Image.open(f"{filename}")
+
         if filename:
             pixmap = QPixmap(filename)
             if not pixmap.isNull():
                 self.ui.filter_inputImage.setPixmap(pixmap)
-                self.ui.Threshold_InputImage.setPixmap(pixmap)
+                self.ui.Threshold_inputImage.setPixmap(pixmap)
                 self.ui.EdgeDetection_inputImage.setPixmap(pixmap)
                 
-                self.input_image = cv2.imread(filename)
-                self.gray_img =cv2.cvtColor(self.input_image, cv2.COLOR_BGR2GRAY)
+                self.input_image_cv = cv2.imread(filename)
+                self.gray_img = cv2.cvtColor(self.input_image_cv, cv2.COLOR_BGR2GRAY)
+
+                cv2.imwrite("grayscale_image.jpg" , self.gray_img)
+                pixmap = QPixmap("grayscale_image.jpg" )
+                self.ui.filter_outputImage.setPixmap(pixmap)
+                self.ui.Threshold_outputImage.setPixmap(pixmap)
+                self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
+
         self.draw_histogram(self.gray_img)
         self.draw_distribution_curve(self.gray_img)
-    
-    # add noise on input - filter output
-    def add_uniform_noise(self):
+
+    ##########################################################################################################################################
+    def add_uniform_noise_opencv(self):
         noise = np.random.uniform(low=-50, high=50, size=self.input_image.shape).astype(np.uint8)  # Generate uniform noise
         noisy_image = cv2.add(self.input_image, noise)
 
@@ -74,7 +260,7 @@ class CV_App(QMainWindow):
         pixmap = QPixmap.fromImage(qImg)
         self.ui.filter_outputImage.setPixmap(pixmap)
 
-    def add_gaussian_noise(self):
+    def add_gaussian_noise_opencv(self):
         noise = np.random.normal(loc=0, scale=50, size=self.input_image.shape).astype(np.uint8)  # Generate Gaussian noise
         noisy_image = cv2.add(self.input_image, noise)
 
@@ -85,7 +271,7 @@ class CV_App(QMainWindow):
         pixmap = QPixmap.fromImage(qImg)
         self.ui.filter_outputImage.setPixmap(pixmap)
 
-    def add_salt_and_pepper_noise(self, amount=0.05):
+    def add_salt_and_pepper_noise_opencv(self, amount=0.05):
         noisy_image = np.copy(self.input_image)
 
         # Generate salt and pepper noise mask
@@ -105,7 +291,7 @@ class CV_App(QMainWindow):
         pixmap = QPixmap.fromImage(qImg)
         self.ui.filter_outputImage.setPixmap(pixmap)
 
-    def average_filter(self, kernel_size=3):
+    def average_filter_opencv(self, kernel_size=3):
         if self.ui.Radio3x3Kernal.isChecked():
             kernel_size = 3
         elif self.ui.Radio5x5Kernal.isChecked():
@@ -124,7 +310,7 @@ class CV_App(QMainWindow):
         pixmap = QPixmap.fromImage(qImg)
         self.ui.filter_outputImage.setPixmap(pixmap)
 
-    def gaussian_filter(self, kernel_size=3, sigma=1):
+    def gaussian_filter_opencv(self, kernel_size=3, sigma=1):
         if self.ui.Radio3x3Kernal.isChecked():
             kernel_size = 3
         elif self.ui.Radio5x5Kernal.isChecked():
@@ -144,7 +330,7 @@ class CV_App(QMainWindow):
         pixmap = QPixmap.fromImage(qImg)
         self.ui.filter_outputImage.setPixmap(pixmap)
 
-    def apply_median_filter(self, size=3):
+    def apply_median_filter_opencv(self, size=3):
         if self.ui.Radio3x3Kernal.isChecked():
             kernel_size = 3
         elif self.ui.Radio5x5Kernal.isChecked():
@@ -180,7 +366,7 @@ class CV_App(QMainWindow):
         qImg = QImage(eq_img.data, width, height, bytesPerLine, QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(qImg)
         self.ui.Threshold_OutputImage.setPixmap(pixmap)
-
+    ##########################################################################################################################################
     # Normalization
     def image_normalization(self):
         lmin = float(self.gray_img.min())
@@ -188,6 +374,7 @@ class CV_App(QMainWindow):
         x = (self.gray_img-lmin)
         y = (lmax-lmin)
         return ((x/y)*255)
+        # feen el output ?
 
     def global_threshold(image, threshold):
         thresholded_image = np.zeros_like(image)
@@ -216,8 +403,8 @@ class CV_App(QMainWindow):
             for i in range(height):
                 for j in range(width):
                     output[i, j] = np.sum(padded_image[i:i+k_height, j:j+k_width] * kernel)
-
             return output
+        
     def canny_edge_detection(self):
         if self.input_image is not None:
             edges = cv2.Canny(self.gray_img, 100, 200)
@@ -243,9 +430,7 @@ class CV_App(QMainWindow):
 
             # Normalize gradient magnitude to [0, 255]
             gradient_magnitude = (gradient_magnitude / gradient_magnitude.max()) * 255
-
             return gradient_magnitude.astype(np.uint8)  
-
 
     def perform_sobel_edge_detection(self):
         if self.gray_img is not None:
@@ -328,7 +513,7 @@ class CV_App(QMainWindow):
         plt.savefig("assets/graphs/histogram.png")
         pixmap = QPixmap("assets/graphs/histogram.png")
 
-        self.ui.filter_inputImage_2.setPixmap(pixmap)
+        self.ui.Histogram_1.setPixmap(pixmap)
 
     def draw_distribution_curve(self,image):
         # Calculate histogram
@@ -348,7 +533,7 @@ class CV_App(QMainWindow):
         plt.tight_layout()
         plt.savefig("assets/graphs/disturb_curve.png")
         pixmap = QPixmap("assets/graphs/disturb_curve.png")
-        self.ui.filter_inputImage_3.setPixmap(pixmap)
+        self.ui.Histogram_2.setPixmap(pixmap)
             
     
 
