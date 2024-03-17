@@ -38,9 +38,10 @@ class CV_App(QMainWindow):
         self.ui.LocalThresholdButton.clicked.connect(self.local_threshold)
 
         self.ui.CannyButton.clicked.connect(self.canny_edge_detection)
-        # self.ui.SobelButton.clicked.connect(self.image_normalization)
-        # self.ui.RobetButton.clicked.connect(self.global_threshold)
-        # self.ui.PrewittButton.clicked.connect(self.local_threshold)
+        self.ui.SobelButton.clicked.connect(self.perform_sobel_edge_detection)
+        self.ui.RobetButton.clicked.connect(self.perform_roberts_edge_detection)
+        self.ui.PrewittButton.clicked.connect(self.perform_prewitt_edge_detection)
+        
 
     def browse_img(self):
         options = QFileDialog.Options()
@@ -54,6 +55,8 @@ class CV_App(QMainWindow):
                 
                 self.input_image = cv2.imread(filename)
                 self.gray_img =cv2.cvtColor(self.input_image, cv2.COLOR_BGR2GRAY)
+        self.draw_histogram(self.gray_img)
+        self.draw_distribution_curve(self.gray_img)
     
     # add noise on input - filter output
     def add_uniform_noise(self):
@@ -198,12 +201,150 @@ class CV_App(QMainWindow):
                 thresholded_image[i, j] = 255 if (image[i, j] - mean_value) > constant else 0
         
         return thresholded_image
+    
+    def convolve(self, image, kernel):
+        if image is not None:
+            height, width = image.shape
+            k_height, k_width = kernel.shape
+            output = np.zeros_like(image)
+            padded_image = np.pad(image, ((k_height//2, k_height//2), (k_width//2, k_width//2)), mode='constant')
+
+            for i in range(height):
+                for j in range(width):
+                    output[i, j] = np.sum(padded_image[i:i+k_height, j:j+k_width] * kernel)
+
+            return output
     def canny_edge_detection(self):
         if self.input_image is not None:
             edges = cv2.Canny(self.gray_img, 100, 200)
             qImg = QImage(edges.data, edges.shape[1], edges.shape[0], edges.strides[0], QImage.Format_Grayscale8)
             pixmap = QPixmap.fromImage(qImg)
             self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
+    
+    def sobel_edge_detection(self, image):
+        if image is not None:
+          
+            image = image.astype(np.float32)
+
+            # Sobel filter kernels
+            kernel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
+            kernel_y = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
+
+            # Convolve image with Sobel kernels to calculate gradients
+            grad_x = self.convolve(image, kernel_x)
+            grad_y = self.convolve(image, kernel_y)
+
+            # Compute gradient magnitude
+            gradient_magnitude = np.sqrt(grad_x**2 + grad_y**2)
+
+            # Normalize gradient magnitude to [0, 255]
+            gradient_magnitude = (gradient_magnitude / gradient_magnitude.max()) * 255
+
+            return gradient_magnitude.astype(np.uint8)  # Convert back to uint8 for image display
+
+
+    def perform_sobel_edge_detection(self):
+        if self.gray_img is not None:
+            gradient_magnitude = self.sobel_edge_detection(self.gray_img)
+            if gradient_magnitude is not None:
+                qImg = QImage(gradient_magnitude.data, gradient_magnitude.shape[1], gradient_magnitude.shape[0], QImage.Format_Grayscale8)
+                pixmap = QPixmap.fromImage(qImg)
+                self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
+
+    def roberts_edge_detection(self, image):
+        if image is not None:
+            # Convert the image to floating point
+            image = image.astype(np.float32)
+
+            # Roberts Cross kernels
+            kernel_x = np.array([[1, 0], [0, -1]])
+            kernel_y = np.array([[0, 1], [-1, 0]])
+
+            # Convolve image with Roberts kernels to calculate gradients
+            grad_x = self.convolve(image, kernel_x)
+            grad_y = self.convolve(image, kernel_y)
+
+            # Compute gradient magnitude
+            gradient_magnitude = np.sqrt(grad_x**2 + grad_y**2)
+
+            # Normalize gradient magnitude to [0, 255]
+            gradient_magnitude = (gradient_magnitude / gradient_magnitude.max()) * 255
+
+            return gradient_magnitude.astype(np.uint8)  # Convert back to uint8 for image display
+
+    def perform_roberts_edge_detection(self):
+        if self.gray_img is not None:
+            gradient_magnitude = self.roberts_edge_detection(self.gray_img)
+            if gradient_magnitude is not None:
+                qImg = QImage(gradient_magnitude.data, gradient_magnitude.shape[1], gradient_magnitude.shape[0], QImage.Format_Grayscale8)
+                pixmap = QPixmap.fromImage(qImg)
+                self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
+
+    def prewitt_edge_detection(self, image):
+        if image is not None:
+            # Convert the image to floating point
+            image = image.astype(np.float32)
+
+            # Prewitt kernels
+            kernel_x = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
+            kernel_y = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]])
+
+            # Convolve image with Prewitt kernels to calculate gradients
+            grad_x = self.convolve(image, kernel_x)
+            grad_y = self.convolve(image, kernel_y)
+
+            # Compute gradient magnitude
+            gradient_magnitude = np.sqrt(grad_x**2 + grad_y**2)
+
+            # Normalize gradient magnitude to [0, 255]
+            gradient_magnitude = (gradient_magnitude / gradient_magnitude.max()) * 255
+
+            return gradient_magnitude.astype(np.uint8)  # Convert back to uint8 for image display
+
+    def perform_prewitt_edge_detection(self):
+        if self.gray_img is not None:
+            gradient_magnitude = self.prewitt_edge_detection(self.gray_img)
+            if gradient_magnitude is not None:
+                qImg = QImage(gradient_magnitude.data, gradient_magnitude.shape[1], gradient_magnitude.shape[0], QImage.Format_Grayscale8)
+                pixmap = QPixmap.fromImage(qImg)
+                self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
+    
+    def draw_histogram(self,image):
+        # Calculate histogram
+        histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
+
+        # Plot histogram
+        plt.figure(figsize=(8, 6))
+        plt.bar(bins[:-1], histogram, width=1)
+        plt.title("Histogram")
+        plt.xlabel("Pixel Intensity")
+        plt.ylabel("Frequency")
+
+        plt.tight_layout()
+        plt.savefig("assets/histogram.png")
+        pixmap = QPixmap("assets/histogram.png")
+
+        self.ui.filter_inputImage_2.setPixmap(pixmap)
+
+    def draw_distribution_curve(self,image):
+        # Calculate histogram
+        histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
+
+        # Cumulative distribution function (CDF)
+        cdf = histogram.cumsum()
+        cdf_normalized = cdf * histogram.max() / cdf.max()
+
+        # Plot distribution curve
+        plt.figure(figsize=(8, 6))
+        plt.plot(bins[:-1], cdf_normalized, color='b')
+        plt.title("Distribution Curve")
+        plt.xlabel("Pixel Intensity")
+        plt.ylabel("CDF")
+
+        plt.tight_layout()
+        plt.savefig("assets/disturb_curve.png")
+        pixmap = QPixmap("assets/disturb_curve.png")
+        self.ui.filter_inputImage_3.setPixmap(pixmap)
             
     
 if __name__ == "__main__":
