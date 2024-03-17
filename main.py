@@ -244,7 +244,7 @@ class CV_App(QMainWindow):
             # Normalize gradient magnitude to [0, 255]
             gradient_magnitude = (gradient_magnitude / gradient_magnitude.max()) * 255
 
-            return gradient_magnitude.astype(np.uint8)  # Convert back to uint8 for image display
+            return gradient_magnitude.astype(np.uint8)  
 
 
     def perform_sobel_edge_detection(self):
@@ -325,8 +325,8 @@ class CV_App(QMainWindow):
         plt.ylabel("Frequency")
 
         plt.tight_layout()
-        plt.savefig("assets/histogram.png")
-        pixmap = QPixmap("assets/histogram.png")
+        plt.savefig("assets/graphs/histogram.png")
+        pixmap = QPixmap("assets/graphs/histogram.png")
 
         self.ui.filter_inputImage_2.setPixmap(pixmap)
 
@@ -340,14 +340,14 @@ class CV_App(QMainWindow):
 
         # Plot distribution curve
         plt.figure(figsize=(8, 6))
-        plt.plot(bins[:-1], cdf_normalized, color='b')
+        plt.bar(bins[:-1], cdf_normalized, color='b',align="edge")
         plt.title("Distribution Curve")
         plt.xlabel("Pixel Intensity")
         plt.ylabel("CDF")
 
         plt.tight_layout()
-        plt.savefig("assets/disturb_curve.png")
-        pixmap = QPixmap("assets/disturb_curve.png")
+        plt.savefig("assets/graphs/disturb_curve.png")
+        pixmap = QPixmap("assets/graphs/disturb_curve.png")
         self.ui.filter_inputImage_3.setPixmap(pixmap)
             
     
