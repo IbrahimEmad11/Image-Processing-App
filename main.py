@@ -350,32 +350,41 @@ class CV_App(QMainWindow):
         histogram, bins = np.histogram(self.gray_img.flatten(), 256, [0,256])
 
         # Compute cumulative distribution function (CDF)
-        cdf = histogram.cumsum()
-        cdf_normalized = cdf * float(histogram.max()) / cdf.max()
+        cdf1 = histogram.cumsum()
 
         # Apply histogram equalization using the CDF
-        cdf_m = np.ma.masked_equal(cdf, 0)
+        cdf_m = np.ma.masked_equal(cdf1, 0)
         cdf_m = (cdf_m - cdf_m.min()) * 255 / (cdf_m.max() - cdf_m.min())
         cdf = np.ma.filled(cdf_m, 0).astype('uint8')
 
         # Map original pixel intensities to new intensities using the CDF
         eq_img = cdf[self.gray_img]
-        eq_img = cv2.cvtColor(eq_img, cv2.COLOR_BGR2RGB)
-        height, width, channel = eq_img.shape
+        equalized_img = cv2.cvtColor(eq_img, cv2.COLOR_BGR2RGB)
+        height, width, channel = equalized_img.shape
         bytesPerLine = 3 * width
-        qImg = QImage(eq_img.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        qImg = QImage(equalized_img.data, width, height, bytesPerLine, QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(qImg)
-        self.ui.Threshold_OutputImage.setPixmap(pixmap)
+        self.ui.Threshold_outputImage.clear
+        self.ui.Threshold_outputImage.setPixmap(pixmap)
+
     ##########################################################################################################################################
+
     # Normalization
     def image_normalization(self):
         lmin = float(self.gray_img.min())
         lmax = float(self.gray_img.max())
-        x = (self.gray_img-lmin)
-        y = (lmax-lmin)
-        return ((x/y)*255)
-        # feen el output ?
+        x = (self.gray_img - lmin)
+        y = (lmax - lmin)
+        normalized_img = ((x / y) * 3)
+        
+        height, width = self.gray_img.shape  
+        qImg = QImage(normalized_img.data, width, height, width, QImage.Format_Grayscale8)
+        pixmap = QPixmap.fromImage(qImg)
+        self.ui.Threshold_outputImage.clear()
+        self.ui.Threshold_outputImage.setPixmap(pixmap)
 
+    
+        
     def global_threshold(image, threshold):
         thresholded_image = np.zeros_like(image)
         thresholded_image[image > threshold] = 255
