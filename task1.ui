@@ -47,6 +47,12 @@
       <height>721</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
     <property name="accessibleName">
      <string/>
     </property>
@@ -910,7 +916,7 @@ QPushButton:hover:!pressed{
     </widget>
     <widget class="QWidget" name="PassTab">
      <attribute name="title">
-      <string>Page</string>
+      <string>HPF - LPF</string>
      </attribute>
      <widget class="QLabel" name="outputImageLabel_7">
       <property name="geometry">
@@ -1122,9 +1128,9 @@ border-color: transparent</string>
      <widget class="QLabel" name="A6">
       <property name="geometry">
        <rect>
-        <x>70</x>
-        <y>40</y>
-        <width>400</width>
+        <x>180</x>
+        <y>20</y>
+        <width>111</width>
         <height>31</height>
        </rect>
       </property>
@@ -1135,29 +1141,7 @@ color: black;
 background-color:transparent;</string>
       </property>
       <property name="text">
-       <string>DF</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="A5">
-      <property name="geometry">
-       <rect>
-        <x>730</x>
-        <y>40</y>
-        <width>400</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-font-size: 30px;
-color: black;
-background-color:transparent;</string>
-      </property>
-      <property name="text">
-       <string> CDF</string>
+       <string>Red DF</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -1166,10 +1150,10 @@ background-color:transparent;</string>
      <widget class="QLabel" name="Histogram_1">
       <property name="geometry">
        <rect>
-        <x>50</x>
-        <y>80</y>
-        <width>512</width>
-        <height>512</height>
+        <x>30</x>
+        <y>60</y>
+        <width>421</width>
+        <height>241</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -1186,13 +1170,35 @@ background-color:transparent;</string>
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
+     <widget class="QLabel" name="A6_2">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>320</y>
+        <width>111</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+font-size: 30px;
+color: black;
+background-color:transparent;</string>
+      </property>
+      <property name="text">
+       <string>Red CDF</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
      <widget class="QLabel" name="Histogram_2">
       <property name="geometry">
        <rect>
-        <x>670</x>
-        <y>80</y>
-        <width>512</width>
-        <height>512</height>
+        <x>30</x>
+        <y>360</y>
+        <width>421</width>
+        <height>241</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -1204,6 +1210,186 @@ background-color:transparent;</string>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Histogram_3">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>60</y>
+        <width>421</width>
+        <height>241</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: 4px solid black;
+</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="A6_3">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>320</y>
+        <width>111</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+font-size: 30px;
+color: black;
+background-color:transparent;</string>
+      </property>
+      <property name="text">
+       <string>Blue CDF</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Histogram_4">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>360</y>
+        <width>421</width>
+        <height>241</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: 4px solid black;
+</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="A6_4">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>20</y>
+        <width>111</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+font-size: 30px;
+color: black;
+background-color:transparent;</string>
+      </property>
+      <property name="text">
+       <string>Blue DF</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Histogram_5">
+      <property name="geometry">
+       <rect>
+        <x>950</x>
+        <y>60</y>
+        <width>421</width>
+        <height>241</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: 4px solid black;
+</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="A6_5">
+      <property name="geometry">
+       <rect>
+        <x>1100</x>
+        <y>320</y>
+        <width>141</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+font-size: 30px;
+color: black;
+background-color:transparent;</string>
+      </property>
+      <property name="text">
+       <string>Green CDF</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Histogram_6">
+      <property name="geometry">
+       <rect>
+        <x>950</x>
+        <y>360</y>
+        <width>421</width>
+        <height>241</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: 4px solid black;
+</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="A6_6">
+      <property name="geometry">
+       <rect>
+        <x>1100</x>
+        <y>20</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+font-size: 30px;
+color: black;
+background-color:transparent;</string>
+      </property>
+      <property name="text">
+       <string>Green DF</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

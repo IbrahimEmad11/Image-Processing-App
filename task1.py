@@ -31,6 +31,10 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1451, 721))
+        font = QtGui.QFont()
+        font.setBold(False)
+        font.setItalic(False)
+        self.tabWidget.setFont(font)
         self.tabWidget.setAccessibleName("")
         self.tabWidget.setStyleSheet("QTabWidget::pane {\n"
 "  border: 1px solid lightgray;\n"
@@ -517,37 +521,101 @@ class Ui_MainWindow(object):
         self.HistogramTab = QtWidgets.QWidget()
         self.HistogramTab.setObjectName("HistogramTab")
         self.A6 = QtWidgets.QLabel(self.HistogramTab)
-        self.A6.setGeometry(QtCore.QRect(70, 40, 400, 31))
+        self.A6.setGeometry(QtCore.QRect(180, 20, 111, 31))
         self.A6.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
 "font-size: 30px;\n"
 "color: black;\n"
 "background-color:transparent;")
         self.A6.setAlignment(QtCore.Qt.AlignCenter)
         self.A6.setObjectName("A6")
-        self.A5 = QtWidgets.QLabel(self.HistogramTab)
-        self.A5.setGeometry(QtCore.QRect(730, 40, 400, 31))
-        self.A5.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
-"font-size: 30px;\n"
-"color: black;\n"
-"background-color:transparent;")
-        self.A5.setAlignment(QtCore.Qt.AlignCenter)
-        self.A5.setObjectName("A5")
         self.Histogram_1 = QtWidgets.QLabel(self.HistogramTab)
-        self.Histogram_1.setGeometry(QtCore.QRect(50, 80, 512, 512))
+        self.Histogram_1.setGeometry(QtCore.QRect(30, 60, 421, 241))
         self.Histogram_1.setStyleSheet("border: 4px solid black;\n"
 "")
         self.Histogram_1.setText("")
         self.Histogram_1.setScaledContents(True)
         self.Histogram_1.setAlignment(QtCore.Qt.AlignCenter)
         self.Histogram_1.setObjectName("Histogram_1")
+        self.A6_2 = QtWidgets.QLabel(self.HistogramTab)
+        self.A6_2.setGeometry(QtCore.QRect(180, 320, 111, 31))
+        self.A6_2.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 30px;\n"
+"color: black;\n"
+"background-color:transparent;")
+        self.A6_2.setAlignment(QtCore.Qt.AlignCenter)
+        self.A6_2.setObjectName("A6_2")
         self.Histogram_2 = QtWidgets.QLabel(self.HistogramTab)
-        self.Histogram_2.setGeometry(QtCore.QRect(670, 80, 512, 512))
+        self.Histogram_2.setGeometry(QtCore.QRect(30, 360, 421, 241))
         self.Histogram_2.setStyleSheet("border: 4px solid black;\n"
 "")
         self.Histogram_2.setText("")
         self.Histogram_2.setScaledContents(True)
         self.Histogram_2.setAlignment(QtCore.Qt.AlignCenter)
         self.Histogram_2.setObjectName("Histogram_2")
+        self.Histogram_3 = QtWidgets.QLabel(self.HistogramTab)
+        self.Histogram_3.setGeometry(QtCore.QRect(490, 60, 421, 241))
+        self.Histogram_3.setStyleSheet("border: 4px solid black;\n"
+"")
+        self.Histogram_3.setText("")
+        self.Histogram_3.setScaledContents(True)
+        self.Histogram_3.setAlignment(QtCore.Qt.AlignCenter)
+        self.Histogram_3.setObjectName("Histogram_3")
+        self.A6_3 = QtWidgets.QLabel(self.HistogramTab)
+        self.A6_3.setGeometry(QtCore.QRect(640, 320, 111, 31))
+        self.A6_3.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 30px;\n"
+"color: black;\n"
+"background-color:transparent;")
+        self.A6_3.setAlignment(QtCore.Qt.AlignCenter)
+        self.A6_3.setObjectName("A6_3")
+        self.Histogram_4 = QtWidgets.QLabel(self.HistogramTab)
+        self.Histogram_4.setGeometry(QtCore.QRect(490, 360, 421, 241))
+        self.Histogram_4.setStyleSheet("border: 4px solid black;\n"
+"")
+        self.Histogram_4.setText("")
+        self.Histogram_4.setScaledContents(True)
+        self.Histogram_4.setAlignment(QtCore.Qt.AlignCenter)
+        self.Histogram_4.setObjectName("Histogram_4")
+        self.A6_4 = QtWidgets.QLabel(self.HistogramTab)
+        self.A6_4.setGeometry(QtCore.QRect(640, 20, 111, 31))
+        self.A6_4.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 30px;\n"
+"color: black;\n"
+"background-color:transparent;")
+        self.A6_4.setAlignment(QtCore.Qt.AlignCenter)
+        self.A6_4.setObjectName("A6_4")
+        self.Histogram_5 = QtWidgets.QLabel(self.HistogramTab)
+        self.Histogram_5.setGeometry(QtCore.QRect(950, 60, 421, 241))
+        self.Histogram_5.setStyleSheet("border: 4px solid black;\n"
+"")
+        self.Histogram_5.setText("")
+        self.Histogram_5.setScaledContents(True)
+        self.Histogram_5.setAlignment(QtCore.Qt.AlignCenter)
+        self.Histogram_5.setObjectName("Histogram_5")
+        self.A6_5 = QtWidgets.QLabel(self.HistogramTab)
+        self.A6_5.setGeometry(QtCore.QRect(1100, 320, 141, 31))
+        self.A6_5.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 30px;\n"
+"color: black;\n"
+"background-color:transparent;")
+        self.A6_5.setAlignment(QtCore.Qt.AlignCenter)
+        self.A6_5.setObjectName("A6_5")
+        self.Histogram_6 = QtWidgets.QLabel(self.HistogramTab)
+        self.Histogram_6.setGeometry(QtCore.QRect(950, 360, 421, 241))
+        self.Histogram_6.setStyleSheet("border: 4px solid black;\n"
+"")
+        self.Histogram_6.setText("")
+        self.Histogram_6.setScaledContents(True)
+        self.Histogram_6.setAlignment(QtCore.Qt.AlignCenter)
+        self.Histogram_6.setObjectName("Histogram_6")
+        self.A6_6 = QtWidgets.QLabel(self.HistogramTab)
+        self.A6_6.setGeometry(QtCore.QRect(1100, 20, 131, 31))
+        self.A6_6.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 30px;\n"
+"color: black;\n"
+"background-color:transparent;")
+        self.A6_6.setAlignment(QtCore.Qt.AlignCenter)
+        self.A6_6.setObjectName("A6_6")
         icon3 = QtGui.QIcon()
         icon3.addPixmap(QtGui.QPixmap(":/Icons/Histogram.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.tabWidget.addTab(self.HistogramTab, icon3, "")
@@ -899,9 +967,13 @@ class Ui_MainWindow(object):
         self.MedianFilterButton_3.setText(_translate("MainWindow", "High Pass "))
         self.inputImageLabel_11.setText(_translate("MainWindow", "Input"))
         self.FilterLabel_3.setText(_translate("MainWindow", "Filter Types"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.PassTab), _translate("MainWindow", "Page"))
-        self.A6.setText(_translate("MainWindow", "DF"))
-        self.A5.setText(_translate("MainWindow", " CDF"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.PassTab), _translate("MainWindow", "HPF - LPF"))
+        self.A6.setText(_translate("MainWindow", "Red DF"))
+        self.A6_2.setText(_translate("MainWindow", "Red CDF"))
+        self.A6_3.setText(_translate("MainWindow", "Blue CDF"))
+        self.A6_4.setText(_translate("MainWindow", "Blue DF"))
+        self.A6_5.setText(_translate("MainWindow", "Green CDF"))
+        self.A6_6.setText(_translate("MainWindow", "Green DF"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.HistogramTab), _translate("MainWindow", "Histogram"))
         self.outputImageLabel_3.setText(_translate("MainWindow", "Output "))
         self.inputImageLabel_3.setText(_translate("MainWindow", "Input"))

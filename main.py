@@ -96,6 +96,7 @@ class CV_App(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)  
         self.input_image = None
+        self.output_image = None
         self.input_image2 = None
         self.hybrid_image1 = None
         self.hybrid_image2 = None
@@ -104,7 +105,7 @@ class CV_App(QMainWindow):
         self.ui.RefreshButton.clicked.connect(self.refresh_img)
 
         self.ui.AverageFilterButton.clicked.connect(self.average_filter)
-        # self.ui.GaussianFilterButton.clicked.connect(self.gaussian_filter)
+        self.ui.GaussianFilterButton.clicked.connect(self.gaussian_filter)
         self.ui.MedianFilterButton.clicked.connect(self.median_filter)
 
         self.ui.UniformNoiseButton.clicked.connect(self.add_uniform_noise)
@@ -139,10 +140,10 @@ class CV_App(QMainWindow):
         noisy_image = np.clip(noisy_image + noise * 255, 0, 255).astype(np.uint8)
 
         output_image = Image.fromarray(noisy_image)
+        self.output_image = output_image
         qt_image = QImage(output_image.tobytes(), output_image.size[0], output_image.size[1], QImage.Format_Grayscale8)
         pixmap = QPixmap.fromImage(qt_image)
         self.ui.filter_outputImage.setPixmap(pixmap)
-
 
     def add_gaussian_noise(self, mean=0, std=25):
         dialog = GaussianNoiseDialog(self)
@@ -156,6 +157,7 @@ class CV_App(QMainWindow):
         noisy_image = np.clip(noisy_image + noise, 0, 255).astype(np.uint8)
 
         output_image = Image.fromarray(noisy_image)
+        self.output_image = output_image
         qt_image = QImage(output_image.tobytes(), output_image.size[0], output_image.size[1], QImage.Format_Grayscale8)
         pixmap = QPixmap.fromImage(qt_image)
         self.ui.filter_outputImage.setPixmap(pixmap)
@@ -169,12 +171,12 @@ class CV_App(QMainWindow):
         image_gray = self.input_image.convert('L')
         noisy_image = np.array(image_gray)
         
-        # Generate salt and pepper noise for each pixel
         salt_pepper = np.random.rand(height, width)
         noisy_image[salt_pepper < ratio / 2] = 0
         noisy_image[salt_pepper > 1 - ratio / 2] = 255
 
         output_image = Image.fromarray(noisy_image)
+        self.output_image = output_image
         qt_image = QImage(output_image.tobytes(), output_image.size[0], output_image.size[1], QImage.Format_Grayscale8)
         pixmap = QPixmap.fromImage(qt_image)
         self.ui.filter_outputImage.setPixmap(pixmap)
@@ -185,12 +187,18 @@ class CV_App(QMainWindow):
         else:
             kernel_size = 5
 
-        image_gray = self.input_image.convert('L')
+        if self.output_image:
+            input_img = self.output_image
+        else:
+            input_img = self.input_image
+
+        image_gray = input_img.convert('L')
         img_array = np.array(image_gray)
         kernel = np.ones((kernel_size, kernel_size)) / (kernel_size ** 2)
         filtered_image_array = convolve2d(img_array, kernel, mode='same').astype(np.uint8)
 
-        filtered_image = Image.fromarray(filtered_image_array)
+        filtered_image = Image.fromarray(filtered_image_array) 
+        self.output_image = filtered_image
         qt_image = QImage(filtered_image.tobytes(), filtered_image.size[0], filtered_image.size[1], QImage.Format_Grayscale8)
         pixmap = QPixmap.fromImage(qt_image)
         self.ui.filter_outputImage.setPixmap(pixmap)
@@ -201,29 +209,56 @@ class CV_App(QMainWindow):
         else:
             kernel_size = 5
 
-        image_gray = self.input_image.convert('L')
-        img_array = np.array(image_gray)
-        filtered_img_array = median_filter(img_array, size=kernel_size)
-        filtered_image = Image.fromarray(filtered_img_array)
+        if self.output_image:
+            input_img = self.output_image
+        else:
+            input_img = self.input_image
 
+        image_gray = input_img.convert('L')
+        img_array = np.array(image_gray)
+
+        height, width = img_array.shape
+
+        filtered_image = np.zeros_like(img_array)
+
+        pad_size = kernel_size // 2
+        padded_image = np.pad(img_array, pad_size, mode='constant')
+
+        for i in range(pad_size, height + pad_size):
+            for j in range(pad_size, width + pad_size):
+                window = padded_image[i - pad_size:i + pad_size + 1, j - pad_size:j + pad_size + 1]
+                filtered_image[i - pad_size, j - pad_size] = np.median(window)
+
+        filtered_image = Image.fromarray(filtered_image.astype('uint8'))
+        self.output_image = filtered_image
         qt_image = QImage(filtered_image.tobytes(), filtered_image.size[0], filtered_image.size[1], QImage.Format_Grayscale8)
         pixmap = QPixmap.fromImage(qt_image)
         self.ui.filter_outputImage.setPixmap(pixmap)
 
-    # def gaussian_filter(self, sigma=1):
-    #     if self.ui.Radio3x3Kernal.isChecked():
-    #         kernel_size = 3
-    #     else:
-    #         kernel_size = 5
+    def gaussian_filter(self, kernel_size=3, sigma=100):
+        if self.ui.Radio3x3Kernal.isChecked():
+            kernel_size = 3
+        else:
+            kernel_size = 5
 
-    #     # Apply the Gaussian filter
-    #     output_image = gaussian_filter(input_image, sigma=1, mode='nearest')
+        if self.output_image:
+            input_img = self.output_image
+        else:
+            input_img = self.input_image
 
-    #     filtered_image = self.apply_filter(self.input_image, kernel)
-    #     qt_image = QImage(filtered_image.tobytes(), filtered_image.size[0], filtered_image.size[1], QImage.Format_Grayscale8)
-    #     pixmap = QPixmap.fromImage(qt_image)
-    #     self.ui.filter_outputImage.setPixmap(pixmap)
+        image_gray = input_img.convert('L')
+        img_array = np.array(image_gray)
 
+        kernel = np.fromfunction(lambda x, y: (1/(2*np.pi*sigma**2)) * np.exp(-((x - kernel_size//2)**2 + (y - kernel_size//2)**2)/(2*sigma**2)), (kernel_size, kernel_size))
+        kernel = kernel / np.sum(kernel)
+
+        filtered_image = convolve(img_array, kernel)
+        filtered_image = Image.fromarray(filtered_image.astype('uint8'))
+        self.output_image = filtered_image
+        qt_image = QImage(filtered_image.tobytes(), filtered_image.size[0], filtered_image.size[1], QImage.Format_Grayscale8)
+        pixmap = QPixmap.fromImage(qt_image)
+        self.ui.filter_outputImage.setPixmap(pixmap)
+        
     def browse_img(self):
         options = QFileDialog.Options()
         filename, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg *.bmp *.gif)", options=options)
@@ -248,102 +283,6 @@ class CV_App(QMainWindow):
         self.draw_histogram(self.gray_img)
         self.draw_distribution_curve(self.gray_img)
 
-    ##########################################################################################################################################
-    def add_uniform_noise_opencv(self):
-        noise = np.random.uniform(low=-50, high=50, size=self.input_image.shape).astype(np.uint8)  # Generate uniform noise
-        noisy_image = cv2.add(self.input_image, noise)
-
-        noisy_image = cv2.cvtColor(noisy_image, cv2.COLOR_BGR2RGB)
-        height, width, channel = noisy_image.shape
-        bytesPerLine = 3 * width
-        qImg = QImage(noisy_image.data, width, height, bytesPerLine, QImage.Format_RGB888)
-        pixmap = QPixmap.fromImage(qImg)
-        self.ui.filter_outputImage.setPixmap(pixmap)
-
-    def add_gaussian_noise_opencv(self):
-        noise = np.random.normal(loc=0, scale=50, size=self.input_image.shape).astype(np.uint8)  # Generate Gaussian noise
-        noisy_image = cv2.add(self.input_image, noise)
-
-        noisy_image = cv2.cvtColor(noisy_image, cv2.COLOR_BGR2RGB)
-        height, width, channel = noisy_image.shape
-        bytesPerLine = 3 * width
-        qImg = QImage(noisy_image.data, width, height, bytesPerLine, QImage.Format_RGB888)
-        pixmap = QPixmap.fromImage(qImg)
-        self.ui.filter_outputImage.setPixmap(pixmap)
-
-    def add_salt_and_pepper_noise_opencv(self, amount=0.05):
-        noisy_image = np.copy(self.input_image)
-
-        # Generate salt and pepper noise mask
-        num_salt = np.ceil(amount * self.input_image.size * 0.5)
-        salt_coords = [np.random.randint(0, i, int(num_salt)) for i in self.input_image.shape[:-1]]  
-        noisy_image[tuple(salt_coords)] = 255
-
-        num_pepper = np.ceil(amount * self.input_image.size * 0.5)
-        pepper_coords = [np.random.randint(0, i, int(num_pepper)) for i in self.input_image.shape[:-1]]  
-        noisy_image[tuple(pepper_coords)] = 0
-
-        # Convert to QImage and display
-        noisy_image = cv2.cvtColor(noisy_image, cv2.COLOR_BGR2RGB)
-        height, width, channel = noisy_image.shape
-        bytesPerLine = 3 * width
-        qImg = QImage(noisy_image.data, width, height, bytesPerLine, QImage.Format_RGB888)
-        pixmap = QPixmap.fromImage(qImg)
-        self.ui.filter_outputImage.setPixmap(pixmap)
-
-    def average_filter_opencv(self, kernel_size=3):
-        if self.ui.Radio3x3Kernal.isChecked():
-            kernel_size = 3
-        elif self.ui.Radio5x5Kernal.isChecked():
-            kernel_size = 5
-
-        # Define the filter kernel
-        kernel = np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size * kernel_size)
-
-        # Apply the filter using convolution
-        filtered_image = cv2.filter2D(self.input_image, -1, kernel)
-
-        filtered_image = cv2.cvtColor(filtered_image, cv2.COLOR_BGR2RGB)
-        height, width, channel = filtered_image.shape
-        bytesPerLine = 3 * width
-        qImg = QImage(filtered_image.data, width, height, bytesPerLine, QImage.Format_RGB888)
-        pixmap = QPixmap.fromImage(qImg)
-        self.ui.filter_outputImage.setPixmap(pixmap)
-
-    def gaussian_filter_opencv(self, kernel_size=3, sigma=1):
-        if self.ui.Radio3x3Kernal.isChecked():
-            kernel_size = 3
-        elif self.ui.Radio5x5Kernal.isChecked():
-            kernel_size = 5
-
-        # Generate Gaussian kernel
-        kernel = cv2.getGaussianKernel(kernel_size, sigma)
-        kernel = np.outer(kernel, kernel.transpose())
-
-        # Apply the filter using convolution
-        filtered_image = cv2.filter2D(self.input_image, -1, kernel)
-
-        filtered_image = cv2.cvtColor(filtered_image, cv2.COLOR_BGR2RGB)
-        height, width, channel = filtered_image.shape
-        bytesPerLine = 3 * width
-        qImg = QImage(filtered_image.data, width, height, bytesPerLine, QImage.Format_RGB888)
-        pixmap = QPixmap.fromImage(qImg)
-        self.ui.filter_outputImage.setPixmap(pixmap)
-
-    def apply_median_filter_opencv(self, size=3):
-        if self.ui.Radio3x3Kernal.isChecked():
-            kernel_size = 3
-        elif self.ui.Radio5x5Kernal.isChecked():
-            kernel_size = 5
-            
-        filtered_image = cv2.medianBlur(self.input_image, kernel_size)
-        filtered_image = cv2.cvtColor(filtered_image, cv2.COLOR_BGR2RGB)
-        height, width, channel = filtered_image.shape
-        bytesPerLine = 3 * width
-        qImg = QImage(filtered_image.data, width, height, bytesPerLine, QImage.Format_RGB888)
-        pixmap = QPixmap.fromImage(qImg)
-        self.ui.filter_outputImage.setPixmap(pixmap)
-
     # Equalization
     def image_equalization(self):
         # Compute histogram of the original image
@@ -366,7 +305,7 @@ class CV_App(QMainWindow):
         qImg = QImage(eq_img.data, width, height, bytesPerLine, QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(qImg)
         self.ui.Threshold_OutputImage.setPixmap(pixmap)
-    ##########################################################################################################################################
+
     # Normalization
     def image_normalization(self):
         lmin = float(self.gray_img.min())
@@ -591,15 +530,11 @@ class CV_App(QMainWindow):
         self.hybrid_image2 = QImage(hybrid_array2.data, hybrid_array2.shape[1], hybrid_array2.shape[0],
                               hybrid_array2.shape[1], QImage.Format_Grayscale8)
 
-
-
-    
     
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = CV_App()
     window.setWindowTitle("Task 1")
-    window.resize(1250,900)
-    window.setMaximumSize(1920, 1080) 
+    window.resize(1450,950)
     window.show() 
     sys.exit(app.exec_())
