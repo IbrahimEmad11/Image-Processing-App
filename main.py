@@ -280,8 +280,11 @@ class CV_App(QMainWindow):
                 self.ui.Threshold_outputImage.setPixmap(pixmap)
                 self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
 
-        self.draw_histogram(self.gray_img)
-        self.draw_distribution_curve(self.gray_img)
+        self.draw_rgb_histogram(self.input_image_cv)
+        self.draw_rgb_disturb_curve(self.input_image_cv)
+
+        # self.draw_histogram_curve(self.gray_img)
+        # self.draw_distribution_curve(self.gray_img)
 
     # Equalization
     def image_equalization(self):
@@ -446,43 +449,142 @@ class CV_App(QMainWindow):
                 pixmap = QPixmap.fromImage(qImg)
                 self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
     
-    def draw_histogram(self,image):
-        # Calculate histogram
-        histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
+    def draw_rgb_histogram(self,image):
+        # Split the image into RGB channels
+        red_channel = image[:,:,0]
+        green_channel = image[:,:,1]
+        blue_channel = image[:,:,2]
 
-        # Plot histogram
-        plt.figure(figsize=(8, 6))
-        plt.bar(bins[:-1], histogram, width=1)
-        plt.title("Histogram")
-        plt.xlabel("Pixel Intensity")
-        plt.ylabel("Frequency")
+        # Calculate histograms for each channel
+        red_hist, red_bins = np.histogram(red_channel.flatten(), bins=256, range=[0, 256])
+        green_hist, green_bins = np.histogram(green_channel.flatten(), bins=256, range=[0, 256])
+        blue_hist, blue_bins = np.histogram(blue_channel.flatten(), bins=256, range=[0, 256])
 
-        plt.tight_layout()
-        plt.savefig("assets/graphs/histogram.png")
-        pixmap = QPixmap("assets/graphs/histogram.png")
+        # Plot and save histograms for each channel
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.bar(red_bins[:-1], red_hist, color='red', label='Red')
+        ax.set_title("Red Histogram")
+        ax.set_xlabel("Pixel Intensity")
+        ax.set_ylabel("Frequency")
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig("assets/graphs/red_histogram.png")
 
-        self.ui.Histogram_1.setPixmap(pixmap)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.bar(green_bins[:-1], green_hist, color='green', label='Green')
+        ax.set_title("Green Histogram")
+        ax.set_xlabel("Pixel Intensity")
+        ax.set_ylabel("Frequency")
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig("assets/graphs/green_histogram.png")
 
-    def draw_distribution_curve(self,image):
-        # Calculate histogram
-        histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.bar(blue_bins[:-1], blue_hist, color='blue', label='Blue')
+        ax.set_title("Blue Histogram")
+        ax.set_xlabel("Pixel Intensity")
+        ax.set_ylabel("Frequency")
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig("assets/graphs/blue_histogram.png")
 
-        # Cumulative distribution function (CDF)
-        cdf = histogram.cumsum()
-        cdf_normalized = cdf * histogram.max() / cdf.max()
+        # Convert saved images to QPixmaps and set them to QLabels
+        red_pixmap = QPixmap("assets/graphs/red_histogram.png")
+        green_pixmap = QPixmap("assets/graphs/green_histogram.png")
+        blue_pixmap = QPixmap("assets/graphs/blue_histogram.png")
 
-        # Plot distribution curve
-        plt.figure(figsize=(8, 6))
-        plt.bar(bins[:-1], cdf_normalized, color='b',align="edge")
-        plt.title("Distribution Curve")
-        plt.xlabel("Pixel Intensity")
-        plt.ylabel("CDF")
+        # Set the QPixmap to the corresponding QLabel
+        self.ui.Histogram_1.setPixmap(red_pixmap)
+        self.ui.Histogram_3.setPixmap(green_pixmap)
+        self.ui.Histogram_5.setPixmap(blue_pixmap)
 
-        plt.tight_layout()
-        plt.savefig("assets/graphs/disturb_curve.png")
-        pixmap = QPixmap("assets/graphs/disturb_curve.png")
-        self.ui.Histogram_2.setPixmap(pixmap)
+    def draw_rgb_disturb_curve(self,image):
+        red_channel = image[:,:,0]
+        green_channel = image[:,:,1]
+        blue_channel = image[:,:,2]
+
+        # Calculate histograms for each channel
+        red_hist, red_bins = np.histogram(red_channel.flatten(), bins=256, range=[0, 256])
+        green_hist, green_bins = np.histogram(green_channel.flatten(), bins=256, range=[0, 256])
+        blue_hist, blue_bins = np.histogram(blue_channel.flatten(), bins=256, range=[0, 256])
+
+        red_cum_hist = np.cumsum(red_hist)
+        green_cum_hist = np.cumsum(green_hist)
+        blue_cum_hist = np.cumsum(blue_hist)
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.bar(red_bins[:-1], red_cum_hist, color='red', label='Red')
+        ax.set_title("Red CDF")
+        ax.set_xlabel("Pixel Intensity")
+        ax.set_ylabel("Frequency")
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig("assets/graphs/red_cdf.png")
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.bar(green_bins[:-1], green_cum_hist, color='green', label='Green')
+        ax.set_title("Green CDF")
+        ax.set_xlabel("Pixel Intensity")
+        ax.set_ylabel("Frequency")
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig("assets/graphs/green_cdf.png")
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.bar(blue_bins[:-1], blue_cum_hist, color='blue', label='Blue')
+        ax.set_title("Blue CDF")
+        ax.set_xlabel("Pixel Intensity")
+        ax.set_ylabel("Frequency")
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig("assets/graphs/blue_cdf.png")
+
+        red_pixmap = QPixmap("assets/graphs/red_cdf.png")
+        green_pixmap = QPixmap("assets/graphs/green_cdf.png")
+        blue_pixmap = QPixmap("assets/graphs/blue_cdf.png")
+
+        # Set the QPixmap to the corresponding QLabel
+        self.ui.Histogram_2.setPixmap(red_pixmap)
+        self.ui.Histogram_4.setPixmap(green_pixmap)
+        self.ui.Histogram_6.setPixmap(blue_pixmap)
+
+
+    # def draw_distribution_curve(self,image):
+    #     # Calculate histogram
+    #     histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
+
+    #     # Cumulative distribution function (CDF)
+    #     cdf = histogram.cumsum()
+    #     cdf_normalized = cdf * histogram.max() / cdf.max()
+
+    #     # Plot distribution curve
+    #     plt.figure(figsize=(8, 6))
+    #     plt.bar(bins[:-1], cdf_normalized, color='b',align="edge")
+    #     plt.title("Distribution Curve")
+    #     plt.xlabel("Pixel Intensity")
+    #     plt.ylabel("CDF")
+
+    #     plt.tight_layout()
+    #     plt.savefig("assets/graphs/disturb_curve.png")
+    #     pixmap = QPixmap("assets/graphs/disturb_curve.png")
+    #     self.ui.Histogram_2.setPixmap(pixmap)
             
+    # def draw_histogram(self,image):
+    #     # Calculate histogram
+    #     histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
+
+    #     # Plot histogram
+    #     plt.figure(figsize=(8, 6))
+    #     plt.bar(bins[:-1], histogram, width=1)
+    #     plt.title("Histogram")
+    #     plt.xlabel("Pixel Intensity")
+    #     plt.ylabel("Frequency")
+
+    #     plt.tight_layout()
+    #     plt.savefig("assets/graphs/histogram.png")
+    #     pixmap = QPixmap("assets/graphs/histogram.png")
+
+    #     self.ui.Histogram_1.setPixmap(pixmap)
     
 
 ############################################################### Requirement no. 9 ###############################################################
