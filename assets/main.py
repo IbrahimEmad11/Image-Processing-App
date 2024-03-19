@@ -15,36 +15,12 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import convolve
 
 # pyuic5 task1.ui -o task1.py
-# global threshold - Normalize 
 class SaltPepperDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Salt and Pepper: ")
         layout = QVBoxLayout()
         label1 = QLabel("Noise Ratio:")
-        self.input1 = QLineEdit()
-
-        layout.addWidget(label1)
-        layout.addWidget(self.input1)
-
-        self.apply_button = QPushButton("Apply")
-        self.apply_button.clicked.connect(self.apply_action)
-        layout.addWidget(self.apply_button)
-
-        self.setLayout(layout)
-    
-    def get_input_values(self):
-        return self.input1.text()
-
-    def apply_action(self):
-         self.accept()
-
-class ThresDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Global Threshold Parameter (0-255): ")
-        layout = QVBoxLayout()
-        label1 = QLabel("Value:")
         self.input1 = QLineEdit()
 
         layout.addWidget(label1)
@@ -112,33 +88,20 @@ class GaussianNoiseDialog(QDialog):
     def apply_action(self):
          self.accept()
 
+
 class CV_App(QMainWindow):
     def __init__(self):
         super().__init__()
         # Set up the UI
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)  
-
         self.input_image = None
-        self.input_image2 = None
         self.output_image = None
+        self.input_image2 = None
         self.hybrid_image1 = None
         self.hybrid_image2 = None
         self.gray_img = None
-        self.gray_img2 = None
-        self.filters_slider = None
-        self.lpf_image = None
-        self.hpf_image = None
-        self.pf_hybrid_flag = True
-
         self.ui.BrowseButton.clicked.connect(self.browse_img)
-        self.ui.BrowseButton_2.clicked.connect(self.browse_input_image2)
-        self.ui.HighpassButton.clicked.connect(lambda: self.high_pass_filter(self.gray_img))
-        self.ui.LowpassButton.clicked.connect(lambda: self.low_pass_filter(self.gray_img))
-        self.ui.GenerateHybrid.clicked.connect(lambda: self.generate_hybrid_image(self.gray_img, self.gray_img2))
-        self.ui.horizontalSlider.valueChanged.connect(self.set_cutoff_freq_value)
-        self.ui.VerticalSlider.valueChanged.connect(self.set_cutoff_freq_value)
-
         self.ui.RefreshButton.clicked.connect(self.refresh_img)
 
         self.ui.AverageFilterButton.clicked.connect(self.average_filter)
@@ -307,99 +270,72 @@ class CV_App(QMainWindow):
                 self.ui.filter_inputImage.setPixmap(pixmap)
                 self.ui.Threshold_inputImage.setPixmap(pixmap)
                 self.ui.EdgeDetection_inputImage.setPixmap(pixmap)
-                self.ui.pass_inputImage.setPixmap(pixmap)
-                self.ui.hybridInputImage1.setPixmap(pixmap)
                 
                 self.input_image_cv = cv2.imread(filename)
-                self.gray_img = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+                self.gray_img = cv2.cvtColor(self.input_image_cv, cv2.COLOR_BGR2GRAY)
 
                 cv2.imwrite("grayscale_image.jpg" , self.gray_img)
                 pixmap = QPixmap("grayscale_image.jpg" )
                 self.ui.filter_outputImage.setPixmap(pixmap)
                 self.ui.Threshold_outputImage.setPixmap(pixmap)
                 self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
-                self.ui.pass_outputImage.setPixmap(pixmap)
-                self.ui.freqOutputImage1.setPixmap(pixmap)
 
-        self.draw_rgb_histogram(self.input_image_cv)
-        self.draw_rgb_disturb_curve(self.input_image_cv)
+        self.draw_histogram(self.gray_img)
+        self.draw_distribution_curve(self.gray_img)
 
-    def browse_input_image2(self):
-        options = QFileDialog.Options()
-        filename, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg *.bmp *.gif)", options=options)
-        self.input_image2 = Image.open(f"{filename}")
-
-        if filename:
-            pixmap = QPixmap(filename)
-            if not pixmap.isNull():
-                self.ui.hybridInputImage2.setPixmap(pixmap)
-                
-                self.input_image2_cv = cv2.imread(filename)
-                self.gray_img2 = cv2.cvtColor(self.input_image2_cv, cv2.COLOR_BGR2GRAY)
-
-                cv2.imwrite("grayscale_image.jpg" , self.gray_img2)
-                pixmap = QPixmap("grayscale_image.jpg" )
-                self.ui.freqOutputImage2.setPixmap(pixmap)
-
+    # Equalization
     def image_equalization(self):
+        # Compute histogram of the original image
         histogram, bins = np.histogram(self.gray_img.flatten(), 256, [0,256])
 
+        # Compute cumulative distribution function (CDF)
         cdf1 = histogram.cumsum()
 
+        # Apply histogram equalization using the CDF
         cdf_m = np.ma.masked_equal(cdf1, 0)
         cdf_m = (cdf_m - cdf_m.min()) * 255 / (cdf_m.max() - cdf_m.min())
         cdf = np.ma.filled(cdf_m, 0).astype('uint8')
 
+        # Map original pixel intensities to new intensities using the CDF
         eq_img = cdf[self.gray_img]
         equalized_img = cv2.cvtColor(eq_img, cv2.COLOR_BGR2RGB)
         height, width, channel = equalized_img.shape
         bytesPerLine = 3 * width
-
         qImg = QImage(equalized_img.data, width, height, bytesPerLine, QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(qImg)
         self.ui.Threshold_outputImage.clear
         self.ui.Threshold_outputImage.setPixmap(pixmap)
 
-    def image_normalization(self):
-        dialog = ThresDialog(self)
-        if dialog.exec_():
-            threshold = float(dialog.get_input_values())
+    ##########################################################################################################################################
 
+    # Normalization
+    def image_normalization(self):
         lmin = float(self.gray_img.min())
         lmax = float(self.gray_img.max())
         x = (self.gray_img - lmin)
         y = (lmax - lmin)
-        normalized_img = ((x / y) * threshold)
-        cv2.imwrite("normalized_img.jpg" , normalized_img)
+        normalized_img = ((x / y) * 3)
         
         height, width = self.gray_img.shape  
         qImg = QImage(normalized_img.data, width, height, width, QImage.Format_Grayscale8)
         pixmap = QPixmap.fromImage(qImg)
+        self.ui.Threshold_outputImage.clear()
         self.ui.Threshold_outputImage.setPixmap(pixmap)
+
+    
         
     def global_threshold(self, threshold=200):
-        dialog = ThresDialog(self)
-        if dialog.exec_():
-            threshold = float(dialog.get_input_values())
 
         thresholded_image = np.zeros_like(self.gray_img)
         thresholded_image[self.gray_img > threshold] = 220
         height, width = self.gray_img.shape
-
         qImg = QImage(thresholded_image.data, width, height, width, QImage.Format_Grayscale8)
+        
         pixmap = QPixmap.fromImage(qImg)
+        self.ui.Threshold_outputImage.clear()
         self.ui.Threshold_outputImage.setPixmap(pixmap)
 
-    def local_threshold(self, block_size=3, threshold=80):
-        if self.ui.Radio3x3Kernal_2.isChecked():
-            block_size = 3
-        else:
-            block_size = 5
-
-        dialog = ThresDialog(self)
-        if dialog.exec_():
-            threshold = float(dialog.get_input_values())
-
+    def local_threshold(self, block_size=3, constant=80):
         thresholded_image = np.zeros_like(self.gray_img)
         padded_image = np.pad(self.gray_img, block_size//2, mode='constant')
         height, width = self.gray_img.shape
@@ -407,10 +343,12 @@ class CV_App(QMainWindow):
             for j in range(self.gray_img.shape[1]):
                 neighborhood = padded_image[i:i+block_size, j:j+block_size]
                 mean_value = np.mean(neighborhood)
-                thresholded_image[i, j] = 255 if (self.gray_img[i, j] - mean_value) > threshold else 0
+                thresholded_image[i, j] = 255 if (self.gray_img[i, j] - mean_value) > constant else 0
         
         qImg = QImage(thresholded_image.data, width, height, width, QImage.Format_Grayscale8)
+        
         pixmap = QPixmap.fromImage(qImg)
+        self.ui.Threshold_outputImage.clear()
         self.ui.Threshold_outputImage.setPixmap(pixmap)
     
     def convolve(self, image, kernel):
@@ -518,281 +456,100 @@ class CV_App(QMainWindow):
                 pixmap = QPixmap.fromImage(qImg)
                 self.ui.EdgeDetection_outputImage.setPixmap(pixmap)
     
-    def draw_rgb_histogram(self,image):
-        # Split the image into RGB channels
-        red_channel = image[:,:,0]
-        green_channel = image[:,:,1]
-        blue_channel = image[:,:,2]
+    def draw_histogram(self,image):
+        # Calculate histogram
+        histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
 
-        # Calculate histograms for each channel
-        red_hist, red_bins = np.histogram(red_channel.flatten(), bins=256, range=[0, 256])
-        green_hist, green_bins = np.histogram(green_channel.flatten(), bins=256, range=[0, 256])
-        blue_hist, blue_bins = np.histogram(blue_channel.flatten(), bins=256, range=[0, 256])
+        # Plot histogram
+        plt.figure(figsize=(8, 6))
+        plt.bar(bins[:-1], histogram, width=1)
+        plt.title("Histogram")
+        plt.xlabel("Pixel Intensity")
+        plt.ylabel("Frequency")
 
-        # Plot and save histograms for each channel
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.bar(red_bins[:-1], red_hist, color='red', label='Red')
-        ax.set_title("Red Histogram")
-        ax.set_xlabel("Pixel Intensity")
-        ax.set_ylabel("Frequency")
-        ax.legend()
-        fig.tight_layout()
-        fig.savefig("assets/graphs/red_histogram.png")
+        plt.tight_layout()
+        plt.savefig("assets/graphs/histogram.png")
+        pixmap = QPixmap("assets/graphs/histogram.png")
 
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.bar(green_bins[:-1], green_hist, color='green', label='Green')
-        ax.set_title("Green Histogram")
-        ax.set_xlabel("Pixel Intensity")
-        ax.set_ylabel("Frequency")
-        ax.legend()
-        fig.tight_layout()
-        fig.savefig("assets/graphs/green_histogram.png")
+        self.ui.Histogram_1.setPixmap(pixmap)
+        
+    
+    def draw_distribution_curve(self,image):
+        # Calculate histogram
+        histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
 
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.bar(blue_bins[:-1], blue_hist, color='blue', label='Blue')
-        ax.set_title("Blue Histogram")
-        ax.set_xlabel("Pixel Intensity")
-        ax.set_ylabel("Frequency")
-        ax.legend()
-        fig.tight_layout()
-        fig.savefig("assets/graphs/blue_histogram.png")
+        # Cumulative distribution function (CDF)
+        cdf = histogram.cumsum()
+        cdf_normalized = cdf * histogram.max() / cdf.max()
 
-        # Convert saved images to QPixmaps and set them to QLabels
-        red_pixmap = QPixmap("assets/graphs/red_histogram.png")
-        green_pixmap = QPixmap("assets/graphs/green_histogram.png")
-        blue_pixmap = QPixmap("assets/graphs/blue_histogram.png")
+        # Plot distribution curve
+        plt.figure(figsize=(8, 6))
+        plt.bar(bins[:-1], cdf_normalized, color='b',align="edge")
+        plt.title("Distribution Curve")
+        plt.xlabel("Pixel Intensity")
+        plt.ylabel("CDF")
 
-        # Set the QPixmap to the corresponding QLabel
-        self.ui.Histogram_1.setPixmap(red_pixmap)
-        self.ui.Histogram_3.setPixmap(green_pixmap)
-        self.ui.Histogram_5.setPixmap(blue_pixmap)
-
-    def draw_rgb_disturb_curve(self,image):
-        red_channel = image[:,:,0]
-        green_channel = image[:,:,1]
-        blue_channel = image[:,:,2]
-
-        # Calculate histograms for each channel
-        red_hist, red_bins = np.histogram(red_channel.flatten(), bins=256, range=[0, 256])
-        green_hist, green_bins = np.histogram(green_channel.flatten(), bins=256, range=[0, 256])
-        blue_hist, blue_bins = np.histogram(blue_channel.flatten(), bins=256, range=[0, 256])
-
-        red_cum_hist = np.cumsum(red_hist)
-        green_cum_hist = np.cumsum(green_hist)
-        blue_cum_hist = np.cumsum(blue_hist)
-
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.bar(red_bins[:-1], red_cum_hist, color='red', label='Red')
-        ax.set_title("Red CDF")
-        ax.set_xlabel("Pixel Intensity")
-        ax.set_ylabel("Frequency")
-        ax.legend()
-        fig.tight_layout()
-        fig.savefig("assets/graphs/red_cdf.png")
-
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.bar(green_bins[:-1], green_cum_hist, color='green', label='Green')
-        ax.set_title("Green CDF")
-        ax.set_xlabel("Pixel Intensity")
-        ax.set_ylabel("Frequency")
-        ax.legend()
-        fig.tight_layout()
-        fig.savefig("assets/graphs/green_cdf.png")
-
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.bar(blue_bins[:-1], blue_cum_hist, color='blue', label='Blue')
-        ax.set_title("Blue CDF")
-        ax.set_xlabel("Pixel Intensity")
-        ax.set_ylabel("Frequency")
-        ax.legend()
-        fig.tight_layout()
-        fig.savefig("assets/graphs/blue_cdf.png")
-
-        red_pixmap = QPixmap("assets/graphs/red_cdf.png")
-        green_pixmap = QPixmap("assets/graphs/green_cdf.png")
-        blue_pixmap = QPixmap("assets/graphs/blue_cdf.png")
-
-        # Set the QPixmap to the corresponding QLabel
-        self.ui.Histogram_2.setPixmap(red_pixmap)
-        self.ui.Histogram_4.setPixmap(green_pixmap)
-        self.ui.Histogram_6.setPixmap(blue_pixmap)
-
-    # def draw_distribution_curve(self,image):
-    #     # Calculate histogram
-    #     histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
-
-    #     # Cumulative distribution function (CDF)
-    #     cdf = histogram.cumsum()
-    #     cdf_normalized = cdf * histogram.max() / cdf.max()
-
-    #     # Plot distribution curve
-    #     plt.figure(figsize=(8, 6))
-    #     plt.bar(bins[:-1], cdf_normalized, color='b',align="edge")
-    #     plt.title("Distribution Curve")
-    #     plt.xlabel("Pixel Intensity")
-    #     plt.ylabel("CDF")
-
-    #     plt.tight_layout()
-    #     plt.savefig("assets/graphs/disturb_curve.png")
-    #     pixmap = QPixmap("assets/graphs/disturb_curve.png")
-    #     self.ui.Histogram_2.setPixmap(pixmap)
+        plt.tight_layout()
+        plt.savefig("assets/graphs/disturb_curve.png")
+        pixmap = QPixmap("assets/graphs/disturb_curve.png")
+        self.ui.Histogram_2.setPixmap(pixmap)
             
-    # def draw_histogram(self,image):
-    #     # Calculate histogram
-    #     histogram, bins = np.histogram(image.flatten(), bins=256, range=[0,256])
-
-    #     # Plot histogram
-    #     plt.figure(figsize=(8, 6))
-    #     plt.bar(bins[:-1], histogram, width=1)
-    #     plt.title("Histogram")
-    #     plt.xlabel("Pixel Intensity")
-    #     plt.ylabel("Frequency")
-
-    #     plt.tight_layout()
-    #     plt.savefig("assets/graphs/histogram.png")
-    #     pixmap = QPixmap("assets/graphs/histogram.png")
-
-    #     self.ui.Histogram_1.setPixmap(pixmap)
     
 
-    def low_pass_filter(self, image):
-        if image is None:
-            return
+############################################################### Requirement no. 9 ###############################################################
 
-        image_array = np.array(image)
-
-        # Compute the FFT of the image
-        fft_image = np.fft.fft2(image_array)
-        
-        # Handling the value of cutoff freq based on the mode (pass filter or hybrid)
-        if self.pf_hybrid_flag:
-            self.filters_slider = self.ui.horizontalSlider.value()
-        else:
-            self.filters_slider = self.ui.VerticalSlider.value()
-        
-        # Create a filter mask based on the cut-off frequency
-        cutoff_freq = self.filters_slider
-        rows, cols = image_array.shape
-        crow, ccol = rows // 2, cols // 2
-        mask = np.ones((rows, cols), np.uint8)
-        mask[crow - cutoff_freq:crow + cutoff_freq, ccol - cutoff_freq:ccol + cutoff_freq] = 0
-
-        # Apply the filter mask to the frequency domain representation of the image
-        fft_image_lpf = fft_image * mask
-
-        # Compute the inverse FFT to obtain the filtered image in the spatial domain
-        filtered_image = np.fft.ifft2(fft_image_lpf).real.astype(np.uint8)
-        self.lpf_image = Image.fromarray(filtered_image)
-        
-        # Handling what data to be returned (if in pass filter mode we show image, but in hybrid mode we return an fft array)
-        if self.pf_hybrid_flag:
-            qt_image = QImage(self.lpf_image.tobytes(), self.lpf_image.size[0], self.lpf_image.size[1], QImage.Format_Grayscale8)
-            pixmap = QPixmap.fromImage(qt_image)
-            self.ui.filter_outputImage.setPixmap(pixmap)
-            self.ui.pass_outputImage.setPixmap(pixmap)
-        else:
-            return fft_image_lpf
-
-    # Highpass Function 
     def high_pass_filter(self, image):
-        if image is None:
-            return
+        kernel = np.array([[-1, -1, -1],
+                           [-1,  8, -1],
+                           [-1, -1, -1]])
 
-        image_array = np.array(image)
-        # Compute the FFT of the image
-        fft_image = np.fft.fft2(image_array)
+        hpf_image = self.apply_filter(image, kernel)
+        return hpf_image
 
-        # Handling the value of cutoff freq based on the mode (pass filter or hybrid)
-        if self.pf_hybrid_flag:
-            self.filters_slider = self.ui.horizontalSlider.value()
-        else:
-            self.filters_slider = self.ui.VerticalSlider.value()
+    def low_pass_filter(self, image):
+        kernel = np.array([[1, 1, 1],
+                           [1, 1, 1],
+                           [1, 1, 1]]) / 9
 
-        # Create a filter mask based on the cut-off frequency for high pass filtering
-        cutoff_freq = self.filters_slider
-        rows, cols = image_array.shape
-        crow, ccol = rows // 2, cols // 2
-        mask = np.zeros((rows, cols), np.uint8)
-        mask[crow - cutoff_freq:crow + cutoff_freq, ccol - cutoff_freq:ccol + cutoff_freq] = 1
+        lpf_image = self.apply_filter(image, kernel)
+        return lpf_image
 
-        # Apply the filter mask to the frequency domain representation of the image
-        fft_image_hpf = fft_image * mask
+    def apply_filter(self, image, kernel):
+        input_array = np.array(image.convertToFormat(QImage.Format_Grayscale8))
+        processed_array = convolve(input_array, kernel)
+        processed_array = np.clip(processed_array, 0, 255).astype(np.uint8)
+        filtered_image = QImage(processed_array.data, processed_array.shape[1], processed_array.shape[0],
+                                 processed_array.shape[1], QImage.Format_Grayscale8)
+        return filtered_image
+    
 
-        # Compute the inverse FFT to obtain the filtered image in the spatial domain
-        filtered_image2 = np.fft.ifft2(fft_image_hpf).real.astype(np.uint8)
-        self.hpf_image = Image.fromarray(filtered_image2)
-        
-        # Handling what data to be returned (if in pass filter mode we show image, but in hybrid mode we return an fft array)
-        if self.pf_hybrid_flag:
-            qt_image = QImage(self.hpf_image.tobytes(), self.hpf_image.size[0], self.hpf_image.size[1], QImage.Format_Grayscale8)
-            pixmap = QPixmap.fromImage(qt_image)
-            self.ui.filter_outputImage.setPixmap(pixmap)
-            self.ui.pass_outputImage.setPixmap(pixmap)
-        else:
-            return fft_image_hpf
 
-    # Hybrid Function 
-    def generate_hybrid_image(self, input1, input2):
+############################################################### Requirement no. 10 ###############################################################
 
-        if input1 is None or input2 is None:
+    def generate_hybrid_images(self):
+        if self.input_image is None or self.input_image2 is None:
             QMessageBox.warning(self, "Warning", "Please load two images first.")
             return
 
-        # Handling the flag to use cutoff freq of hybrid mode silder
-        self.pf_hybrid_flag = False
+        # Apply high-pass and low-pass filters to both images
+        high_pass_image1 = self.apply_high_pass_filter(self.input_image)
+        high_pass_image2 = self.apply_high_pass_filter(self.input_image2)
+        low_pass_image1 = self.apply_low_pass_filter(self.input_image)
+        low_pass_image2 = self.apply_low_pass_filter(self.input_image2)
 
-        # Compute low pass filter for the input images
-        lowpass_image1 = self.low_pass_filter(input1)
-        lowpass_image2 = self.low_pass_filter(input2)
+        #Create 1st hybrid image:
+        hybrid_array1 = np.array(low_pass_image1) + np.array(high_pass_image2)
+        hybrid_array1 = np.clip(hybrid_array1, 0, 255).astype(np.uint8)
 
-        # Compute high pass filter for the input images
-        highpass_image1 = self.high_pass_filter(input1)
-        highpass_image2 = self.high_pass_filter(input2)
+        self.hybrid_image1 = QImage(hybrid_array1.data, hybrid_array1.shape[1], hybrid_array1.shape[0],
+                              hybrid_array1.shape[1], QImage.Format_Grayscale8)
+        #Create 2nd hybrid image:
+        hybrid_array2 = np.array(low_pass_image2) + np.array(high_pass_image1)
+        hybrid_array2 = np.clip(hybrid_array2, 0, 255).astype(np.uint8)
 
+        self.hybrid_image2 = QImage(hybrid_array2.data, hybrid_array2.shape[1], hybrid_array2.shape[0],
+                              hybrid_array2.shape[1], QImage.Format_Grayscale8)
 
-        # Resize highpassed images to match the dimensions of lowpassed images
-        highpass_image2_real = np.real(highpass_image2)
-        highpass_image2_imag = np.imag(highpass_image2)
-        highpass_image2_real_resized = cv2.resize(highpass_image2_real, (lowpass_image1.shape[1], lowpass_image1.shape[0]))
-        highpass_image2_imag_resized = cv2.resize(highpass_image2_imag, (lowpass_image1.shape[1], lowpass_image1.shape[0]))
-        highpass_image2_resized = highpass_image2_real_resized + 1j * highpass_image2_imag_resized
-
-        highpass_image1_real = np.real(highpass_image1)
-        highpass_image1_imag = np.imag(highpass_image1)
-        highpass_image1_real_resized = cv2.resize(highpass_image1_real, (lowpass_image2.shape[1], lowpass_image2.shape[0]))
-        highpass_image1_imag_resized = cv2.resize(highpass_image1_imag, (lowpass_image2.shape[1], lowpass_image2.shape[0]))
-        highpass_image1_resized = highpass_image1_real_resized + 1j * highpass_image1_imag_resized
-
-        # Creating 2 arrays of the hybrid images, 1st is of lowpass of the 1st input and highpass of the 2nd input and the other array is vice versa
-        hybrid_image1_fft_array = lowpass_image1 + highpass_image2_resized
-        hybrid_image2_fft_array = lowpass_image2 + highpass_image1_resized
-
-        # Converting arrays from frequency domain to spatial domain then to images
-        inverse_hybrid1 = np.fft.ifft2(hybrid_image1_fft_array).real.astype(np.uint8)
-        inverse_hybrid2 = np.fft.ifft2(hybrid_image2_fft_array).real.astype(np.uint8)
-        self.hybrid_image1 = Image.fromarray(inverse_hybrid1)
-        self.hybrid_image2 = Image.fromarray(inverse_hybrid2)
-
-        # Handling which hybrid image to show
-        if self.ui.radioButton_2.isChecked() :
-            qt_image = QImage(self.hybrid_image1.tobytes(), self.hybrid_image1.size[0], self.hybrid_image1.size[1], QImage.Format_Grayscale8)
-            pixmap = QPixmap.fromImage(qt_image)
-            self.ui.finalHybridImage.setPixmap(pixmap)
-
-        else:
-            qt_image = QImage(self.hybrid_image2.tobytes(), self.hybrid_image2.size[0], self.hybrid_image2.size[1], QImage.Format_Grayscale8)
-            pixmap = QPixmap.fromImage(qt_image)
-            self.ui.finalHybridImage.setPixmap(pixmap)
-        
-        # Handling the flag to indicate end of the hybrid process
-        self.pf_hybrid_flag = True
-
-    # Handling labels of sliders Function 
-    def set_cutoff_freq_value(self):
-        self.cutoff_freq_value = int(self.ui.horizontalSlider.value())
-        self.ui.label_5.setText(f"{self.cutoff_freq_value}")
-        self.cutoff_freq_value_hybrid = int(self.ui.VerticalSlider.value())
-        self.ui.label_7.setText(f"{self.cutoff_freq_value_hybrid}")
     
 if __name__ == "__main__":
     app = QApplication(sys.argv)
