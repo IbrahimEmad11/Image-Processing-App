@@ -397,9 +397,9 @@ class CV_App(QMainWindow):
             image = image.astype(np.float32)
 
             # Roberts Cross kernels
-            kernel_x = np.array([[1, 0], [0, -1]])
-            kernel_y = np.array([[0, 1], [-1, 0]])
-
+            kernel_x = np.array([[-1, 0, 1],[-2, 0, 2],[-1, 0, 1]])
+            kernel_y = np.array([[-1, -2, -1],[0, 0, 0],[1, 2, 1]])
+            
             # Convolve image with Roberts kernels to calculate gradients
             grad_x = self.convolve(image, kernel_x)
             grad_y = self.convolve(image, kernel_y)
