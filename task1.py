@@ -30,7 +30,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setObjectName("centralwidget")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1451, 721))
+        self.tabWidget.setGeometry(QtCore.QRect(0, 10, 1451, 711))
         font = QtGui.QFont()
         font.setBold(False)
         font.setItalic(False)
@@ -434,58 +434,15 @@ class Ui_MainWindow(object):
         self.PassTab = QtWidgets.QWidget()
         self.PassTab.setObjectName("PassTab")
         self.outputImageLabel_7 = QtWidgets.QLabel(self.PassTab)
-        self.outputImageLabel_7.setGeometry(QtCore.QRect(990, 50, 191, 31))
+        self.outputImageLabel_7.setGeometry(QtCore.QRect(1000, 50, 191, 31))
         self.outputImageLabel_7.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
 "font-size: 30px;\n"
 "color: black;\n"
 "background-color:transparent;")
         self.outputImageLabel_7.setAlignment(QtCore.Qt.AlignCenter)
         self.outputImageLabel_7.setObjectName("outputImageLabel_7")
-        self.Filtering_3 = QtWidgets.QWidget(self.PassTab)
-        self.Filtering_3.setGeometry(QtCore.QRect(10, 150, 241, 221))
-        self.Filtering_3.setStyleSheet("QWidget{\n"
-"border: 2px solid;\n"
-"border-radius: 5px;\n"
-"}")
-        self.Filtering_3.setObjectName("Filtering_3")
-        self.AverageFilterButton_3 = QtWidgets.QPushButton(self.Filtering_3)
-        self.AverageFilterButton_3.setGeometry(QtCore.QRect(10, 90, 221, 51))
-        self.AverageFilterButton_3.setStyleSheet("QPushButton{\n"
-"border-style: solid;\n"
-"border-width: 2px;\n"
-"border-radius: 10px;\n"
-"font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
-"font-size: 20px;\n"
-"color: black;\n"
-"background-color: rgb(246, 247, 250);\n"
-"}\n"
-"\n"
-"QPushButton:hover:!pressed{\n"
-"    background-color: qlineargradient(x1: 0.5, y1: 1, x2: 0.5, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
-"}")
-        self.AverageFilterButton_3.setObjectName("AverageFilterButton_3")
-        self.MedianFilterButton_3 = QtWidgets.QPushButton(self.Filtering_3)
-        self.MedianFilterButton_3.setGeometry(QtCore.QRect(10, 30, 221, 51))
-        self.MedianFilterButton_3.setStyleSheet("QPushButton{\n"
-"border-style: solid;\n"
-"border-width: 2px;\n"
-"border-radius: 10px;\n"
-"font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
-"font-size: 20px;\n"
-"color: black;\n"
-"background-color: rgb(246, 247, 250);\n"
-"}\n"
-"\n"
-"QPushButton:hover:!pressed{\n"
-"    background-color: qlineargradient(x1: 0.5, y1: 1, x2: 0.5, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
-"}")
-        self.MedianFilterButton_3.setObjectName("MedianFilterButton_3")
-        self.horizontalSlider = QtWidgets.QSlider(self.Filtering_3)
-        self.horizontalSlider.setGeometry(QtCore.QRect(50, 170, 160, 18))
-        self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
-        self.horizontalSlider.setObjectName("horizontalSlider")
         self.inputImageLabel_11 = QtWidgets.QLabel(self.PassTab)
-        self.inputImageLabel_11.setGeometry(QtCore.QRect(410, 50, 191, 31))
+        self.inputImageLabel_11.setGeometry(QtCore.QRect(420, 50, 191, 31))
         self.inputImageLabel_11.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
 "font-size: 30px;\n"
 "color: black;\n"
@@ -500,15 +457,6 @@ class Ui_MainWindow(object):
         self.pass_inputImage.setScaledContents(True)
         self.pass_inputImage.setAlignment(QtCore.Qt.AlignCenter)
         self.pass_inputImage.setObjectName("pass_inputImage")
-        self.FilterLabel_3 = QtWidgets.QLabel(self.PassTab)
-        self.FilterLabel_3.setGeometry(QtCore.QRect(10, 110, 241, 31))
-        self.FilterLabel_3.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
-"font-size: 30px;\n"
-"color: black;\n"
-"background-color:transparent;\n"
-"border-color: transparent")
-        self.FilterLabel_3.setAlignment(QtCore.Qt.AlignCenter)
-        self.FilterLabel_3.setObjectName("FilterLabel_3")
         self.pass_outputImage = QtWidgets.QLabel(self.PassTab)
         self.pass_outputImage.setGeometry(QtCore.QRect(830, 90, 512, 512))
         self.pass_outputImage.setStyleSheet("border: 4px solid black;\n"
@@ -517,6 +465,71 @@ class Ui_MainWindow(object):
         self.pass_outputImage.setScaledContents(True)
         self.pass_outputImage.setAlignment(QtCore.Qt.AlignCenter)
         self.pass_outputImage.setObjectName("pass_outputImage")
+        self.FilterLabel_3 = QtWidgets.QLabel(self.PassTab)
+        self.FilterLabel_3.setGeometry(QtCore.QRect(20, 130, 241, 31))
+        self.FilterLabel_3.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 30px;\n"
+"color: black;\n"
+"background-color:transparent;\n"
+"border-color: transparent")
+        self.FilterLabel_3.setAlignment(QtCore.Qt.AlignCenter)
+        self.FilterLabel_3.setObjectName("FilterLabel_3")
+        self.Filtering_3 = QtWidgets.QWidget(self.PassTab)
+        self.Filtering_3.setGeometry(QtCore.QRect(20, 170, 241, 221))
+        self.Filtering_3.setStyleSheet("QWidget{\n"
+"border: 2px solid;\n"
+"border-radius: 5px;\n"
+"}")
+        self.Filtering_3.setObjectName("Filtering_3")
+        self.LowpassButton = QtWidgets.QPushButton(self.Filtering_3)
+        self.LowpassButton.setGeometry(QtCore.QRect(10, 90, 221, 51))
+        self.LowpassButton.setStyleSheet("QPushButton{\n"
+"border-style: solid;\n"
+"border-width: 2px;\n"
+"border-radius: 10px;\n"
+"font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 20px;\n"
+"color: black;\n"
+"background-color: rgb(246, 247, 250);\n"
+"}\n"
+"\n"
+"QPushButton:hover:!pressed{\n"
+"    background-color: qlineargradient(x1: 0.5, y1: 1, x2: 0.5, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
+"}")
+        self.LowpassButton.setObjectName("LowpassButton")
+        self.HighpassButton = QtWidgets.QPushButton(self.Filtering_3)
+        self.HighpassButton.setGeometry(QtCore.QRect(10, 30, 221, 51))
+        self.HighpassButton.setStyleSheet("QPushButton{\n"
+"border-style: solid;\n"
+"border-width: 2px;\n"
+"border-radius: 10px;\n"
+"font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 20px;\n"
+"color: black;\n"
+"background-color: rgb(246, 247, 250);\n"
+"}\n"
+"\n"
+"QPushButton:hover:!pressed{\n"
+"    background-color: qlineargradient(x1: 0.5, y1: 1, x2: 0.5, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
+"}")
+        self.HighpassButton.setObjectName("HighpassButton")
+        self.horizontalSlider = QtWidgets.QSlider(self.Filtering_3)
+        self.horizontalSlider.setGeometry(QtCore.QRect(40, 160, 160, 18))
+        self.horizontalSlider.setMaximum(2000)
+        self.horizontalSlider.setSliderPosition(1000)
+        self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.horizontalSlider.setObjectName("horizontalSlider")
+        self.label_5 = QtWidgets.QLabel(self.Filtering_3)
+        self.label_5.setGeometry(QtCore.QRect(130, 190, 41, 20))
+        self.label_5.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_5.setObjectName("label_5")
+        self.label_8 = QtWidgets.QLabel(self.Filtering_3)
+        self.label_8.setGeometry(QtCore.QRect(40, 190, 81, 21))
+        font = QtGui.QFont()
+        font.setBold(True)
+        self.label_8.setFont(font)
+        self.label_8.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_8.setObjectName("label_8")
         self.tabWidget.addTab(self.PassTab, "")
         self.HistogramTab = QtWidgets.QWidget()
         self.HistogramTab.setObjectName("HistogramTab")
@@ -662,12 +675,12 @@ class Ui_MainWindow(object):
         self.Threshold_outputImage.setAlignment(QtCore.Qt.AlignCenter)
         self.Threshold_outputImage.setObjectName("Threshold_outputImage")
         self.LocalThershold = QtWidgets.QWidget(self.ThresholdTab)
-        self.LocalThershold.setGeometry(QtCore.QRect(30, 100, 241, 121))
+        self.LocalThershold.setGeometry(QtCore.QRect(30, 80, 241, 141))
         self.LocalThershold.setStyleSheet("border: 2px solid;\n"
 "border-radius: 5px;")
         self.LocalThershold.setObjectName("LocalThershold")
         self.LocalThresholdButton = QtWidgets.QPushButton(self.LocalThershold)
-        self.LocalThresholdButton.setGeometry(QtCore.QRect(50, 50, 151, 51))
+        self.LocalThresholdButton.setGeometry(QtCore.QRect(50, 80, 151, 51))
         self.LocalThresholdButton.setStyleSheet("QPushButton{\n"
 "border-style: solid;\n"
 "border-width: 2px;\n"
@@ -691,6 +704,23 @@ class Ui_MainWindow(object):
 "border-color: transparent")
         self.LocalLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.LocalLabel.setObjectName("LocalLabel")
+        self.Radio5x5Kernal_2 = QtWidgets.QRadioButton(self.LocalThershold)
+        self.Radio5x5Kernal_2.setGeometry(QtCore.QRect(130, 50, 50, 20))
+        self.Radio5x5Kernal_2.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 15px;\n"
+"color: black;\n"
+"background-color:transparent;\n"
+"border-color: transparent")
+        self.Radio5x5Kernal_2.setObjectName("Radio5x5Kernal_2")
+        self.Radio3x3Kernal_2 = QtWidgets.QRadioButton(self.LocalThershold)
+        self.Radio3x3Kernal_2.setGeometry(QtCore.QRect(60, 50, 50, 20))
+        self.Radio3x3Kernal_2.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
+"font-size: 15px;\n"
+"color: black;\n"
+"background-color:transparent;\n"
+"border-color: transparent")
+        self.Radio3x3Kernal_2.setChecked(True)
+        self.Radio3x3Kernal_2.setObjectName("Radio3x3Kernal_2")
         self.GlobalThreshold = QtWidgets.QWidget(self.ThresholdTab)
         self.GlobalThreshold.setGeometry(QtCore.QRect(30, 230, 241, 121))
         self.GlobalThreshold.setStyleSheet("border: 2px solid;\n"
@@ -818,15 +848,6 @@ class Ui_MainWindow(object):
         self.freqOutputImage2.setScaledContents(True)
         self.freqOutputImage2.setAlignment(QtCore.Qt.AlignCenter)
         self.freqOutputImage2.setObjectName("freqOutputImage2")
-        self.Image1FSlider = QtWidgets.QSlider(self.Frequency)
-        self.Image1FSlider.setGeometry(QtCore.QRect(700, 380, 21, 141))
-        self.Image1FSlider.setMaximum(1)
-        self.Image1FSlider.setPageStep(10)
-        self.Image1FSlider.setSliderPosition(1)
-        self.Image1FSlider.setOrientation(QtCore.Qt.Vertical)
-        self.Image1FSlider.setTickPosition(QtWidgets.QSlider.NoTicks)
-        self.Image1FSlider.setTickInterval(0)
-        self.Image1FSlider.setObjectName("Image1FSlider")
         self.UploadeImage1 = QtWidgets.QPushButton(self.Frequency)
         self.UploadeImage1.setGeometry(QtCore.QRect(330, 50, 61, 61))
         self.UploadeImage1.setStyleSheet("QPushButton{\n"
@@ -845,33 +866,13 @@ class Ui_MainWindow(object):
         self.UploadeImage1.setIconSize(QtCore.QSize(60, 60))
         self.UploadeImage1.setObjectName("UploadeImage1")
         self.finalHybridImage = QtWidgets.QLabel(self.Frequency)
-        self.finalHybridImage.setGeometry(QtCore.QRect(780, 60, 512, 545))
+        self.finalHybridImage.setGeometry(QtCore.QRect(780, 114, 512, 491))
         self.finalHybridImage.setStyleSheet("border: 4px solid black;\n"
 "")
         self.finalHybridImage.setText("")
         self.finalHybridImage.setScaledContents(True)
         self.finalHybridImage.setAlignment(QtCore.Qt.AlignCenter)
         self.finalHybridImage.setObjectName("finalHybridImage")
-        self.HybridButton = QtWidgets.QPushButton(self.Frequency)
-        self.HybridButton.setGeometry(QtCore.QRect(710, 310, 61, 61))
-        self.HybridButton.setStyleSheet("QPushButton{\n"
-"border-radius: 25px;\n"
-"font: 900 12pt \"Segoe UI Black\";\n"
-"}\n"
-"\n"
-"QPushButton:hover:!pressed{\n"
-"    background-color: qlineargradient(x1: 0.5, y1: 1, x2: 0.5, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
-"}")
-        self.HybridButton.setText("")
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(":/Icons/hybrid.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.HybridButton.setIcon(icon6)
-        self.HybridButton.setIconSize(QtCore.QSize(60, 60))
-        self.HybridButton.setObjectName("HybridButton")
-        self.label_6 = QtWidgets.QLabel(self.Frequency)
-        self.label_6.setGeometry(QtCore.QRect(690, 330, 51, 41))
-        self.label_6.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_6.setObjectName("label_6")
         self.inputImageLabel_4 = QtWidgets.QLabel(self.Frequency)
         self.inputImageLabel_4.setGeometry(QtCore.QRect(90, 30, 191, 31))
         self.inputImageLabel_4.setStyleSheet("font-family: Impact, Haettenschweiler, \'Arial Narrow Bold\', sans-serif;\n"
@@ -888,15 +889,14 @@ class Ui_MainWindow(object):
 "background-color:transparent;")
         self.inputImageLabel_5.setAlignment(QtCore.Qt.AlignCenter)
         self.inputImageLabel_5.setObjectName("inputImageLabel_5")
-        self.radioButton = QtWidgets.QRadioButton(self.Frequency)
-        self.radioButton.setGeometry(QtCore.QRect(680, 150, 101, 41))
-        self.radioButton.setObjectName("radioButton")
-        self.label_7 = QtWidgets.QLabel(self.Frequency)
-        self.label_7.setGeometry(QtCore.QRect(690, 530, 51, 41))
-        self.label_7.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_7.setObjectName("label_7")
         self.BrowseButton_2 = QtWidgets.QPushButton(self.Frequency)
-        self.BrowseButton_2.setGeometry(QtCore.QRect(250, 320, 131, 31))
+        self.BrowseButton_2.setGeometry(QtCore.QRect(250, 320, 151, 31))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI Black")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setItalic(False)
+        self.BrowseButton_2.setFont(font)
         self.BrowseButton_2.setStyleSheet("QPushButton{\n"
 "border-radius: 10px;\n"
 "text-align: left;\n"
@@ -911,6 +911,44 @@ class Ui_MainWindow(object):
         self.BrowseButton_2.setIcon(icon5)
         self.BrowseButton_2.setIconSize(QtCore.QSize(50, 50))
         self.BrowseButton_2.setObjectName("BrowseButton_2")
+        self.radioButton_2 = QtWidgets.QRadioButton(self.Frequency)
+        self.radioButton_2.setGeometry(QtCore.QRect(890, 50, 141, 41))
+        font = QtGui.QFont()
+        font.setBold(True)
+        self.radioButton_2.setFont(font)
+        self.radioButton_2.setObjectName("radioButton_2")
+        self.GenerateHybrid = QtWidgets.QPushButton(self.Frequency)
+        self.GenerateHybrid.setGeometry(QtCore.QRect(1070, 50, 111, 31))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.GenerateHybrid.setFont(font)
+        self.GenerateHybrid.setObjectName("GenerateHybrid")
+        self.label_7 = QtWidgets.QLabel(self.Frequency)
+        self.label_7.setGeometry(QtCore.QRect(690, 450, 61, 41))
+        font = QtGui.QFont()
+        font.setBold(True)
+        self.label_7.setFont(font)
+        self.label_7.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_7.setObjectName("label_7")
+        self.label_6 = QtWidgets.QLabel(self.Frequency)
+        self.label_6.setGeometry(QtCore.QRect(680, 260, 81, 41))
+        font = QtGui.QFont()
+        font.setBold(True)
+        self.label_6.setFont(font)
+        self.label_6.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_6.setObjectName("label_6")
+        self.VerticalSlider = QtWidgets.QSlider(self.Frequency)
+        self.VerticalSlider.setGeometry(QtCore.QRect(710, 300, 21, 141))
+        self.VerticalSlider.setMaximum(2000)
+        self.VerticalSlider.setPageStep(10)
+        self.VerticalSlider.setSliderPosition(1000)
+        self.VerticalSlider.setOrientation(QtCore.Qt.Vertical)
+        self.VerticalSlider.setTickPosition(QtWidgets.QSlider.NoTicks)
+        self.VerticalSlider.setTickInterval(0)
+        self.VerticalSlider.setObjectName("VerticalSlider")
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(":/Icons/hybrid.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.tabWidget.addTab(self.Frequency, icon6, "")
         self.BrowseButton = QtWidgets.QPushButton(self.centralwidget)
         self.BrowseButton.setGeometry(QtCore.QRect(1130, 20, 141, 61))
@@ -931,7 +969,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(4)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -963,10 +1001,12 @@ class Ui_MainWindow(object):
         self.CannyButton.setText(_translate("MainWindow", "Canny Edge Technique"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.EdgeDetection), _translate("MainWindow", "Edge Detection"))
         self.outputImageLabel_7.setText(_translate("MainWindow", "Output "))
-        self.AverageFilterButton_3.setText(_translate("MainWindow", "Low Pass"))
-        self.MedianFilterButton_3.setText(_translate("MainWindow", "High Pass "))
         self.inputImageLabel_11.setText(_translate("MainWindow", "Input"))
         self.FilterLabel_3.setText(_translate("MainWindow", "Filter Types"))
+        self.LowpassButton.setText(_translate("MainWindow", "Low Pass"))
+        self.HighpassButton.setText(_translate("MainWindow", "High Pass "))
+        self.label_5.setText(_translate("MainWindow", "1000"))
+        self.label_8.setText(_translate("MainWindow", "Cutoff freq"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.PassTab), _translate("MainWindow", "HPF - LPF"))
         self.A6.setText(_translate("MainWindow", "Red DF"))
         self.A6_2.setText(_translate("MainWindow", "Red CDF"))
@@ -979,6 +1019,8 @@ class Ui_MainWindow(object):
         self.inputImageLabel_3.setText(_translate("MainWindow", "Input"))
         self.LocalThresholdButton.setText(_translate("MainWindow", "Apply"))
         self.LocalLabel.setText(_translate("MainWindow", "Local Threshold"))
+        self.Radio5x5Kernal_2.setText(_translate("MainWindow", "5x5"))
+        self.Radio3x3Kernal_2.setText(_translate("MainWindow", "3x3"))
         self.GlobalThresholdButton.setText(_translate("MainWindow", "Apply"))
         self.GlobalLabel.setText(_translate("MainWindow", "Global Threshold"))
         self.NormalizeButton.setText(_translate("MainWindow", "Apply"))
@@ -986,11 +1028,12 @@ class Ui_MainWindow(object):
         self.EqualizeButton.setText(_translate("MainWindow", "Apply"))
         self.EqualizeLabel.setText(_translate("MainWindow", "Equalize"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.ThresholdTab), _translate("MainWindow", "Threshold"))
-        self.label_6.setText(_translate("MainWindow", "H"))
         self.inputImageLabel_4.setText(_translate("MainWindow", "Image 1"))
         self.inputImageLabel_5.setText(_translate("MainWindow", "Image 2"))
-        self.radioButton.setText(_translate("MainWindow", "Switch"))
-        self.label_7.setText(_translate("MainWindow", "L"))
         self.BrowseButton_2.setText(_translate("MainWindow", "Upload Image"))
+        self.radioButton_2.setText(_translate("MainWindow", "Switch HPF/LPF"))
+        self.GenerateHybrid.setText(_translate("MainWindow", "Generate"))
+        self.label_7.setText(_translate("MainWindow", "1000"))
+        self.label_6.setText(_translate("MainWindow", "Cutoff freq"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Frequency), _translate("MainWindow", "Hybrid"))
         self.BrowseButton.setText(_translate("MainWindow", "Upload Image"))
