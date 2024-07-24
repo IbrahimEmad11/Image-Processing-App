@@ -5,12 +5,8 @@ from PyQt5.QtGui import QPixmap
 from PIL import Image
 from task1 import Ui_MainWindow
 from task1 import Ui_MainWindow
-import image_processing.filters as filters
-import image_processing.edge_detection as edge_detection
-import image_processing.hp_lp_filters as hp_lp_filters
-import image_processing.histogram as histogram
-import image_processing.threshold_normalization_equalization as threshold_normalization_equalization
-import image_processing.hybrid_image as hybrid_image
+from image_processing import filters, edge_detection, hp_lp_filters, histogram, threshold_normalization_equalization, hybrid_image
+
 
 class CVApp(QMainWindow):
     def __init__(self):
